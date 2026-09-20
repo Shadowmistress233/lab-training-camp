@@ -193,37 +193,39 @@ function createBarChart(svgSelector) {
       .range([height, 0])
       .nice();
 
-    // 3. 柱体专用缓动动画（仅柱体自身平滑缩放，文字与坐标轴不参与飞行）
+    // 3. 统一的平滑呼吸缓动（时长 550ms，赋予图表呼吸感与纵向滑动感）
     const t = d3.transition()
-      .duration(420)
+      .duration(550)
       .ease(d3.easeCubicInOut);
 
-    // 4. 网格线：原地更新，不产生位移
-    gridGroup.call(
-      d3.axisLeft(yScale)
-        .ticks(5)
-        .tickSize(-width)
-        .tickFormat("")
-    );
+    // 4. 网格线：随 Y 轴刻度平滑纵向滑动
+    gridGroup.transition(t)
+      .call(
+        d3.axisLeft(yScale)
+          .ticks(5)
+          .tickSize(-width)
+          .tickFormat("")
+      );
 
-    // 5. 坐标轴：原地更新位置，仅通过淡入呈现，彻底消除任何数字或文字的横向/纵向飞行动画
-    xAxisGroup.call(d3.axisBottom(xScale));
+    // 5. Y 轴刻度：平滑纵向滑动过渡（呼吸感），数值与标线自然滑入目标位置
+    yAxisGroup.transition(t)
+      .call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format(",")))
+      .selectAll(".tick text")
+      .attr("class", "axis-text")
+      .style("font-size", "0.85rem");
+
+    // X 轴：保持原位柔和淡入淡出（避免字词横向乱滑）
     xAxisGroup.selectAll(".tick text")
+      .transition()
+      .duration(180)
+      .style("opacity", 0);
+
+    xAxisGroup.transition(t)
+      .call(d3.axisBottom(xScale))
+      .selectAll(".tick text")
       .attr("class", "axis-text")
       .style("font-size", "1.05rem")
       .style("font-weight", "600")
-      .style("opacity", 0)
-      .transition()
-      .duration(200)
-      .style("opacity", 1);
-
-    yAxisGroup.call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format(",")));
-    yAxisGroup.selectAll(".tick text")
-      .attr("class", "axis-text")
-      .style("font-size", "0.85rem")
-      .style("opacity", 0)
-      .transition()
-      .duration(200)
       .style("opacity", 1);
 
     // =========================================================================
