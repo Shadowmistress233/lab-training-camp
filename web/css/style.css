@@ -1,0 +1,459 @@
+/* ==========================================================================
+   全唐诗意象谱系可视化 - 古风美学样式表
+   ========================================================================== */
+
+:root {
+  --bg-parchment: #f6f3eb;
+  --bg-card: #ffffff;
+  --bg-card-active: #faf8f2;
+  --text-ink: #22252a;
+  --text-sub: #5c626b;
+  --text-light: #8b929a;
+  
+  /* 传统中国色调 */
+  --c-vermilion: #b23a22;   /* 朱砂 */
+  --c-indigo: #2c3e50;      /* 黛蓝 */
+  --c-jade: #3b7a57;        /* 碧玉/艾绿 */
+  --c-ochre: #c28b38;       /* 赭黄/藤黄 */
+  --c-purple: #6a4c77;      /* 暮紫 */
+  
+  --border-light: #e5dfd3;
+  --border-active: #b23a22;
+  --shadow-soft: 0 4px 16px rgba(44, 34, 24, 0.06);
+  --shadow-hover: 0 8px 24px rgba(44, 34, 24, 0.12);
+  
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-serif);
+  background-color: var(--bg-parchment);
+  color: var(--text-ink);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: radial-gradient(#e5dfd3 0.75px, transparent 0.75px);
+  background-size: 20px 20px;
+}
+
+/* ---------------- 顶部标题栏 ---------------- */
+.header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-light);
+  padding: 24px 36px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.seal-mark {
+  background: var(--c-vermilion);
+  color: #fff;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: bold;
+  padding: 6px 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(178, 58, 34, 0.3);
+  letter-spacing: 2px;
+  user-select: none;
+}
+
+.title-group {
+  flex: 1;
+}
+
+.main-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--text-ink);
+  letter-spacing: 1.5px;
+}
+
+.sub-title {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+  margin-top: 4px;
+  font-family: var(--font-sans);
+}
+
+.stats-ribbon {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-pill {
+  background: var(--bg-parchment);
+  border: 1px solid var(--border-light);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+}
+
+.stat-label {
+  color: var(--text-sub);
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--c-vermilion);
+}
+
+/* ---------------- 主体左右分栏 ---------------- */
+.main-container {
+  max-width: 1400px;
+  width: 100%;
+  margin: 28px auto;
+  padding: 0 36px;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* 左侧面板：意象分组卡片与标签云 */
+.left-panel {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.panel-icon {
+  color: var(--c-vermilion);
+  font-size: 1.1rem;
+}
+
+.panel-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-ink);
+}
+
+.panel-hint {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  font-family: var(--font-sans);
+}
+
+.category-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cat-card {
+  background: var(--bg-parchment);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: #d1c7b7;
+}
+
+.cat-card.active {
+  background: #ffffff;
+  border-color: var(--border-active);
+  box-shadow: 0 4px 18px rgba(178, 58, 34, 0.12);
+}
+
+.cat-card.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--c-vermilion);
+}
+
+.cat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.cat-card-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-ink);
+}
+
+.cat-card-count {
+  font-size: 0.8rem;
+  color: var(--c-vermilion);
+  background: rgba(178, 58, 34, 0.08);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+
+.cat-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-sub);
+  margin-bottom: 10px;
+  line-height: 1.4;
+  font-family: var(--font-sans);
+}
+
+.cat-tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.word-tag {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.82rem;
+  color: var(--text-ink);
+  transition: background 0.15s ease;
+}
+
+.cat-card.active .word-tag {
+  background: var(--bg-card-active);
+  border-color: #ebdcd3;
+}
+
+/* 右侧面板：D3 柱状图主视窗 */
+.right-panel {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  padding: 28px;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.cat-tag {
+  display: inline-block;
+  background: var(--c-vermilion);
+  color: #ffffff;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  font-family: var(--font-sans);
+}
+
+.current-cat-name {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-ink);
+}
+
+.current-cat-desc {
+  font-size: 0.88rem;
+  color: var(--text-sub);
+  margin-top: 4px;
+  font-family: var(--font-sans);
+}
+
+.chart-metric {
+  font-size: 0.95rem;
+  color: var(--text-sub);
+  font-family: var(--font-sans);
+}
+
+.chart-metric strong {
+  font-size: 1.25rem;
+  color: var(--c-vermilion);
+}
+
+/* D3 绘图舞台 */
+.chart-stage {
+  width: 100%;
+  height: 480px;
+  position: relative;
+}
+
+#bar-chart-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* 柱体与文本样式 */
+.bar {
+  cursor: pointer;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.bar:hover {
+  filter: brightness(1.15);
+  opacity: 0.95;
+}
+
+.bar-label {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-anchor: middle;
+  fill: var(--text-ink);
+}
+
+.axis-text {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  fill: var(--text-ink);
+}
+
+.axis-label {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  fill: var(--text-sub);
+}
+
+.grid-line line {
+  stroke: #ece7dc;
+  stroke-dasharray: 3 3;
+}
+
+/* 底部提示 */
+.chart-footer {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border-light);
+}
+
+.footer-tip {
+  font-size: 0.82rem;
+  color: var(--text-sub);
+  font-family: var(--font-sans);
+}
+
+/* ---------------- 浮动 Tooltip ---------------- */
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid #d4c8b6;
+  border-radius: 8px;
+  padding: 14px 18px;
+  box-shadow: 0 10px 30px rgba(44, 34, 24, 0.15);
+  backdrop-filter: blur(4px);
+  max-width: 320px;
+  z-index: 1000;
+  transition: opacity 0.2s ease;
+}
+
+.tt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.tt-word {
+  font-size: 1.35rem;
+  font-weight: bold;
+  color: var(--c-vermilion);
+}
+
+.tt-count {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  font-family: var(--font-sans);
+}
+
+.tt-section-title {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  margin-bottom: 6px;
+  font-family: var(--font-sans);
+}
+
+.tt-poets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.poet-badge {
+  background: var(--bg-parchment);
+  border: 1px solid var(--border-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--text-ink);
+  font-family: var(--font-sans);
+}
+
+.poet-badge strong {
+  color: var(--c-vermilion);
+  margin-left: 2px;
+}
+
+.tt-quote {
+  background: var(--bg-parchment);
+  border-left: 3px solid var(--c-vermilion);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  color: var(--text-ink);
+  line-height: 1.5;
+  border-radius: 0 4px 4px 0;
+}
+
+.tt-quote-author {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  text-align: right;
+  margin-top: 4px;
+  font-family: var(--font-sans);
+}

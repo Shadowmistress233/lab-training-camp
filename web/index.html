@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>唐诗意象谱系与用词偏好可视化</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 顶部古典画卷式标题栏 -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="seal-mark">唐風</div>
+      <div class="title-group">
+        <h1 class="main-title">全唐詩意象譜系與用詞偏好可視化</h1>
+        <p class="sub-title">基于《全唐诗》全量语料的意象数据解构与 D3 动态交互呈现</p>
+      </div>
+      <div class="stats-ribbon" id="stats-ribbon">
+        <!-- 统计指标由 JS 从数据契约动态计算填入，消除硬编码 -->
+      </div>
+    </div>
+  </header>
+
+  <!-- 主体左右联动区域 -->
+  <main class="main-container">
+    <!-- 左侧：意象大类选择区（完全由数据驱动生成卡片与标签） -->
+    <aside class="left-panel">
+      <div class="panel-header">
+        <span class="panel-icon">❖</span>
+        <h2 class="panel-title">意象分类</h2>
+        <span class="panel-hint">点击卡片切换视图</span>
+      </div>
+      <div class="category-cards" id="category-cards">
+        <!-- 由 JavaScript 依据数据契约动态渲染，无任何硬编码 -->
+      </div>
+    </aside>
+
+    <!-- 右侧：D3 柱状图主图表区 -->
+    <section class="right-panel">
+      <div class="chart-header">
+        <div class="active-category-info">
+          <span class="cat-tag" id="current-cat-badge">-</span>
+          <h2 class="current-cat-name" id="current-cat-name">正在加载数据...</h2>
+        </div>
+        <div class="chart-controls">
+          <span class="chart-metric">类目总频次：<strong id="current-cat-total">0</strong> 次</span>
+        </div>
+      </div>
+
+      <!-- D3 柱状图渲染容器 -->
+      <div class="chart-stage" id="chart-stage">
+        <svg id="bar-chart-svg"></svg>
+      </div>
+
+      <!-- 底部提示信息 -->
+      <div class="chart-footer">
+        <div class="footer-tip">💡 交互提示：点击左侧不同卡片可平滑切换柱状图；鼠标悬停在柱体上可查看该意象的具体出现频次。</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 浮动 Tooltip -->
+  <div class="tooltip" id="tooltip" style="opacity: 0;"></div>
+
+  <!-- D3.js (v5) -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@5/dist/d3.min.js"></script>
+  <!-- 主逻辑 -->
+  <script src="js/app.js"></script>
+</body>
+</html>
