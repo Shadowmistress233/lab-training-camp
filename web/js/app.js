@@ -138,8 +138,8 @@ function createBarChart(svgSelector) {
   const yAxisGroup = g.append("g")
     .attr("class", "y-axis");
 
-  // Y 轴标题
-  yAxisGroup.append("text")
+  // Y 轴标题（独立分组，绝不与 axisLeft 混用）
+  g.append("text")
     .attr("class", "axis-label")
     .attr("x", -10)
     .attr("y", -14)
@@ -193,54 +193,54 @@ function createBarChart(svgSelector) {
       .range([height, 0])
       .nice();
 
-    // 3. 柔和优雅的补间过渡动画定义（时长缩短至 480ms，避免夸张跳变）
+    // 3. 柱体专用缓动动画（仅柱体自身平滑缩放，文字与坐标轴不参与飞行）
     const t = d3.transition()
-      .duration(480)
+      .duration(420)
       .ease(d3.easeCubicInOut);
 
-    // 4. 重绘网格背景线（柔和过渡）
-    gridGroup.transition(t).call(
+    // 4. 网格线：原地更新，不产生位移
+    gridGroup.call(
       d3.axisLeft(yScale)
         .ticks(5)
         .tickSize(-width)
         .tickFormat("")
     );
 
-    // 5. 坐标轴柔和更新：避免文字在 X 轴上夸张位移滑动
-    xAxisGroup.selectAll("text")
-      .transition()
-      .duration(150)
-      .style("opacity", 0);
-
-    xAxisGroup.transition(t)
-      .call(d3.axisBottom(xScale))
-      .selectAll("text")
+    // 5. 坐标轴：原地更新位置，仅通过淡入呈现，彻底消除任何数字或文字的横向/纵向飞行动画
+    xAxisGroup.call(d3.axisBottom(xScale));
+    xAxisGroup.selectAll(".tick text")
       .attr("class", "axis-text")
       .style("font-size", "1.05rem")
       .style("font-weight", "600")
+      .style("opacity", 0)
+      .transition()
+      .duration(200)
       .style("opacity", 1);
 
-    yAxisGroup.transition(t)
-      .call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format(",")))
-      .selectAll("text")
+    yAxisGroup.call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format(",")));
+    yAxisGroup.selectAll(".tick text")
       .attr("class", "axis-text")
-      .style("font-size", "0.85rem");
+      .style("font-size", "0.85rem")
+      .style("opacity", 0)
+      .transition()
+      .duration(200)
+      .style("opacity", 1);
 
     // =========================================================================
-    // 6. D3 核心更新模式: 柱体 (Bars) - 微妙柔和的伸缩
+    // 6. D3 核心更新模式: 柱体 (Bars) - 唯一保留平滑高度过渡的视觉主体
     // =========================================================================
     const bars = barsGroup.selectAll(".bar")
       .data(data, d => d.name);
 
-    // EXIT: 旧柱体原位淡出并收缩
+    // EXIT: 旧柱体原位淡出
     bars.exit()
       .transition(t)
-      .attr("y", height)
       .attr("height", 0)
+      .attr("y", height)
       .style("opacity", 0)
       .remove();
 
-    // ENTER: 新柱体初始高度为 0，柔和显现
+    // ENTER: 新柱体从底部原位升起
     const enterBars = bars.enter()
       .append("rect")
       .attr("class", "bar")
@@ -253,7 +253,7 @@ function createBarChart(svgSelector) {
       .attr("fill", `url(#${gradientId})`)
       .style("opacity", 0);
 
-    // MERGE: 统一平滑调整高度与位置
+    // MERGE: 统一调整高度与位置
     enterBars.merge(bars)
       .on("mouseover", function(d) {
         showTooltip(d, theme);
@@ -273,14 +273,14 @@ function createBarChart(svgSelector) {
       .style("opacity", 1);
 
     // =========================================================================
-    // 7. D3 核心更新模式: 柱顶数值标注 (Value Labels)
+    // 7. D3 核心更新模式: 柱顶数值标注 (原地淡入淡出，绝不在屏幕上飞行)
     // =========================================================================
     const labels = labelsGroup.selectAll(".bar-label")
       .data(data, d => d.name);
 
     labels.exit()
-      .transition(t)
-      .attr("y", height)
+      .transition()
+      .duration(150)
       .style("opacity", 0)
       .remove();
 
@@ -288,11 +288,13 @@ function createBarChart(svgSelector) {
       .append("text")
       .attr("class", "bar-label")
       .attr("x", d => xScale(d.name) + xScale.bandwidth() / 2)
-      .attr("y", height)
+      .attr("y", d => yScale(d.value) - 8)
+      .text(d => d.value.toLocaleString())
       .style("opacity", 0);
 
     enterLabels.merge(labels)
-      .transition(t)
+      .transition()
+      .duration(250)
       .attr("x", d => xScale(d.name) + xScale.bandwidth() / 2)
       .attr("y", d => yScale(d.value) - 8)
       .text(d => d.value.toLocaleString())
