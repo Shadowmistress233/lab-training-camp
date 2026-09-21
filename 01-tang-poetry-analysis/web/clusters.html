@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大唐诗人流派聚类星空图</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 顶部古典画卷式标题栏 -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="seal-mark">唐風</div>
+      <div class="title-group">
+        <h1 class="main-title">全唐詩大唐詩人流派聚類星空圖</h1>
+        <p class="sub-title">基于 150 维 TF-IDF 词频特征 · KMeans 无监督聚类与 PCA 主成分降维投影呈现</p>
+      </div>
+      <div class="stats-ribbon" id="clusters-stats-ribbon">
+        <!-- 统计指标由 JS 动态计算 -->
+      </div>
+    </div>
+  </header>
+
+  <!-- 顶部模块导航 -->
+  <nav class="top-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-tab">
+        <span class="nav-symbol">◇</span> 意象词频全景
+      </a>
+      <a href="poets.html" class="nav-tab">
+        <span class="nav-symbol">◇</span> 诗人情感画像
+      </a>
+      <a href="clusters.html" class="nav-tab active">
+        <span class="nav-symbol">◈</span> 诗坛流派聚类
+      </a>
+    </div>
+  </nav>
+
+  <!-- 主体左右联动区域 -->
+  <main class="main-container cluster-view-container">
+    <!-- 左侧：聚类流派图例与诗人明细卡片 -->
+    <aside class="left-panel cluster-list-panel">
+      <div class="panel-header">
+        <span class="panel-icon">❖</span>
+        <h2 class="panel-title">流派图例</h2>
+        <span class="panel-hint">点击卡片过滤流派</span>
+      </div>
+
+      <!-- 流派卡片列表 -->
+      <div class="cluster-legend-list" id="cluster-legend-list">
+        <!-- 由 JavaScript 依据数据契约动态渲染 -->
+      </div>
+
+      <!-- 选中诗人详情卡片 -->
+      <div class="selected-poet-card" id="selected-poet-card">
+        <div class="selected-card-header">
+          <span class="selected-card-badge">选定诗人</span>
+          <h3 class="selected-poet-name" id="sel-poet-name">点击右侧星点查看</h3>
+        </div>
+        <div class="selected-card-body" id="sel-poet-body">
+          <p class="sel-hint-text">在右侧星空图中点击任意诗人圆点，即可在此处查看其所属流派与高频特征词。</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 右侧：D3 散点图主图表区 -->
+    <section class="right-panel scatter-panel">
+      <div class="chart-header">
+        <div class="active-category-info">
+          <span class="cat-tag" id="current-cluster-filter">全部流派</span>
+          <h2 class="current-cat-name">二维语义空间投影 (PCA 降维)</h2>
+        </div>
+        <div class="chart-controls zoom-controls">
+          <button class="zoom-btn" id="zoom-in-btn" title="放大">＋</button>
+          <button class="zoom-btn" id="zoom-out-btn" title="缩小">－</button>
+          <button class="zoom-btn reset-btn" id="zoom-reset-btn" title="重置视角">↺ 重置</button>
+        </div>
+      </div>
+
+      <!-- D3 散点图渲染容器 -->
+      <div class="chart-stage scatter-stage" id="scatter-stage">
+        <svg id="scatter-plot-svg"></svg>
+      </div>
+
+      <!-- 底部操作提示 -->
+      <div class="chart-footer">
+        <div class="footer-tip">💡 交互提示：支持鼠标拖拽平移、滚轮缩放；悬停查看诗人信息，点击固定选中诗人；左侧点击流派可高亮/过滤。</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 浮动 Tooltip -->
+  <div class="tooltip" id="tooltip" style="opacity: 0;"></div>
+
+  <!-- D3.js (v5) -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@5/dist/d3.min.js"></script>
+  <!-- 主逻辑 (Vite 现代 ES Module 模式) -->
+  <script type="module" src="js/clusters.js"></script>
+</body>
+</html>

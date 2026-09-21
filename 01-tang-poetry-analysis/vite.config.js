@@ -11,6 +11,7 @@ export default defineConfig({
       input: {
         main: resolve(import.meta.dirname, 'web/index.html'),
         poets: resolve(import.meta.dirname, 'web/poets.html'),
+        clusters: resolve(import.meta.dirname, 'web/clusters.html'),
       },
     },
   },
