@@ -220,18 +220,16 @@ function createBarChart(svgSelector, globalMax) {
       .duration(450)
       .ease(d3.easeCubicInOut);
 
-    // 4. X 轴文字柔和淡入淡出（避免字词横向乱滑）
+    // 4. X 轴：参考《纽约时报》的纯净溶解（In-place Dissolve）
+    // 立即定点设置 X 轴刻度几何坐标（彻底消除横向位移与飞入），仅让文字做平滑的原地淡入
+    xAxisGroup.call(d3.axisBottom(xScale));
     xAxisGroup.selectAll(".tick text")
-      .transition()
-      .duration(150)
-      .style("opacity", 0);
-
-    xAxisGroup.transition(t)
-      .call(d3.axisBottom(xScale))
-      .selectAll(".tick text")
       .attr("class", "axis-text")
       .style("font-size", "1.05rem")
       .style("font-weight", "600")
+      .style("opacity", 0)
+      .transition()
+      .duration(280)
       .style("opacity", 1);
 
     // =========================================================================
