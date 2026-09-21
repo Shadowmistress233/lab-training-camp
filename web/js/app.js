@@ -54,10 +54,13 @@ function initApp(data) {
     updateView(categories, activeCategoryId);
   });
 
-  // 4. 初始化 D3 柱状图画布
-  const chart = createBarChart("#bar-chart-svg");
+  // 4. 计算全唐诗所有分类中的全局最大值，用于构建统一全局标尺（方案二）
+  const globalMax = d3.max(categories, c => d3.max(c.items, d => d.value)) || 20000;
 
-  // 5. 初始渲染第一组数据
+  // 5. 初始化 D3 柱状图画布（传入全局标尺上限）
+  const chart = createBarChart("#bar-chart-svg", globalMax);
+
+  // 6. 初始渲染第一组数据
   updateView(categories, activeCategoryId);
 
   function updateView(categories, catId) {
@@ -114,7 +117,7 @@ function renderCategoryCards(categories, activeId, onSelect) {
 /**
  * 创建 D3 柱状图实例并返回 update 方法
  */
-function createBarChart(svgSelector) {
+function createBarChart(svgSelector, globalMax) {
   const svg = d3.select(svgSelector);
   const stage = document.getElementById("chart-stage");
 
@@ -127,18 +130,43 @@ function createBarChart(svgSelector) {
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // 网格线分组
-  const gridGroup = g.append("g").attr("class", "grid-line");
+  // =========================================================================
+  // 方案二核心：基于全局最大值构建统一固定的 Y 比例尺（全唐诗最高词频为“山” 19,525）
+  // =========================================================================
+  const yScale = d3.scaleLinear()
+    .domain([0, (globalMax || 20000) * 1.1])
+    .range([height, 0])
+    .nice();
 
-  // 坐标轴分组
+  // 1. 静态网格线（一次性绘制，全局固定，永远不移动、不跳变）
+  const gridGroup = g.append("g")
+    .attr("class", "grid-line")
+    .call(
+      d3.axisLeft(yScale)
+        .ticks(5)
+        .tickSize(-width)
+        .tickFormat("")
+    );
+
+  // 2. 静态 Y 轴（一次性绘制，刻度数字永远固定不动，彻底杜绝闪烁和飞入）
+  const yAxisGroup = g.append("g")
+    .attr("class", "y-axis")
+    .call(
+      d3.axisLeft(yScale)
+        .ticks(5)
+        .tickFormat(d3.format(","))
+    );
+
+  yAxisGroup.selectAll(".tick text")
+    .attr("class", "axis-text")
+    .style("font-size", "0.85rem");
+
+  // 3. X 坐标轴分组
   const xAxisGroup = g.append("g")
     .attr("class", "x-axis")
     .attr("transform", `translate(0,${height})`);
 
-  const yAxisGroup = g.append("g")
-    .attr("class", "y-axis");
-
-  // Y 轴标题（独立分组，绝不与 axisLeft 混用）
+  // Y 轴标题（独立分组）
   g.append("text")
     .attr("class", "axis-label")
     .attr("x", -10)
@@ -181,43 +209,21 @@ function createBarChart(svgSelector) {
       .attr("offset", "100%")
       .attr("stop-color", theme.secondary);
 
-    // 2. 比例尺构建
+    // 2. X 比例尺构建（仅 X 轴随当前分类词列表动态变化）
     const xScale = d3.scaleBand()
       .domain(data.map(d => d.name))
       .range([0, width])
       .padding(0.36);
 
-    const maxY = d3.max(data, d => d.value) || 100;
-    const yScale = d3.scaleLinear()
-      .domain([0, maxY * 1.15])
-      .range([height, 0])
-      .nice();
-
-    // 3. 统一的平滑呼吸缓动（时长 550ms，赋予图表呼吸感与纵向滑动感）
+    // 3. 补间过渡动画定义（时长 450ms，仅作用于柱体和 X 轴字词）
     const t = d3.transition()
-      .duration(550)
+      .duration(450)
       .ease(d3.easeCubicInOut);
 
-    // 4. 网格线：随 Y 轴刻度平滑纵向滑动
-    gridGroup.transition(t)
-      .call(
-        d3.axisLeft(yScale)
-          .ticks(5)
-          .tickSize(-width)
-          .tickFormat("")
-      );
-
-    // 5. Y 轴刻度：平滑纵向滑动过渡（呼吸感），数值与标线自然滑入目标位置
-    yAxisGroup.transition(t)
-      .call(d3.axisLeft(yScale).ticks(5).tickFormat(d3.format(",")))
-      .selectAll(".tick text")
-      .attr("class", "axis-text")
-      .style("font-size", "0.85rem");
-
-    // X 轴：保持原位柔和淡入淡出（避免字词横向乱滑）
+    // 4. X 轴文字柔和淡入淡出（避免字词横向乱滑）
     xAxisGroup.selectAll(".tick text")
       .transition()
-      .duration(180)
+      .duration(150)
       .style("opacity", 0);
 
     xAxisGroup.transition(t)
