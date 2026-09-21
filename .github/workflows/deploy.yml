@@ -36,9 +36,11 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
+        working-directory: 01-tang-poetry-analysis
         run: pnpm install
 
       - name: Build with Vite
+        working-directory: 01-tang-poetry-analysis
         run: pnpm build
 
       - name: Setup Pages
@@ -47,7 +49,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './01-tang-poetry-analysis/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment

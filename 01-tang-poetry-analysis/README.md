@@ -1,59 +1,61 @@
-# 唐诗意象分析与交互可视化系统 (Tang Poetry Imagery Analysis & Visualization)
+# 唐诗意象用词分析与交互可视化 (01-tang-poetry-analysis)
 
-本项目为实验室训练营综合训练题——“文本相关数据分析：唐诗用词特点分析”。
+基于《全唐诗》语料库的文本数据分析与交互可视化系统。
 
-## 项目定位与架构设计
+## 模块说明
 
-本项目遵循 **CS61A/B 软件工程与数据抽象原则** 进行分层设计：
+- **数据处理层 (Python)**：
+  - 解析《全唐诗》原始文本（卷号、诗题、作者、诗句）。
+  - 使用 Jieba 全模式（`cut_all=True`）进行前缀分词，准确提取复合词中的单字意象（如从“青山”中提取“山”）。
+  - 统计意象频次、代表诗人及诗句，生成前后端数据契约 `web/data/imagery_data.json`。
 
-- **数据抽象层 (Data Layer - Python)**：
-  - 高效解析《全唐诗》全量文本（卷号、诗题、诗人、正文）。
-  - 基于多维意象字典（四季、花卉、色彩、天象、情感）进行词频统计与关联分析。
-  - 提取意象关联的 **Top 诗人 (Poet)** 与 **代表名句 (Sample Verses)**。
-  - 产出规范的前后端数据契约：`web/data/imagery_data.json`。
+- **可视化交互层 (D3.js v5 + Vite)**：
+  - 采用古典宣纸与传统配色风格。
+  - 响应式 D3 柱状图，支持平滑过渡动画与悬浮提示（Tooltip）。
+  - 采用全局固定 Y 轴刻度，避免分类切换时坐标轴数字抖动或越界。
+  - 基于 Vite + pnpm 构建，支持热更新（HMR）。
 
-- **可视化表现层 (Presentation Layer - D3.js)**：
-  - 采用中国古典美学风格（宣纸质感底色、中国传统色、古风排版）。
-  - 左侧：古风意象分类卡片/标签云。
-  - 右侧：D3.js (v5) 响应式柱状图，支持分类切换时的平滑补间动画（Transition）与交互 Tooltip。
-
-## 目录结构
+## 目录说明
 
 ```text
-tang-poetry-analysis/
-├── .gitignore              # Git 忽略规则
-├── README.md               # 项目文档与技术规格
-├── .venv/                  # uv 创建的 Python 虚拟环境 (已忽略)
-├── data/                   # 原始语料数据
-├── src/                    # Python 数据清洗与解析脚本
-│   └── process_poems.py    # 全唐诗解析与意象挖掘引擎
-└── web/                    # 前端可视化
-    ├── index.html          # 可视化主页面
+01-tang-poetry-analysis/
+├── README.md
+├── package.json
+├── vite.config.js
+├── src/
+│   └── process_poems.py            # 语料解析与意象统计脚本
+└── web/
+    ├── index.html                  # 页面结构
     ├── css/
-    │   └── style.css       # 古风样式
+    │   └── style.css               # 古风样式
     ├── js/
-    │   └── app.js          # D3 交互与渲染逻辑
+    │   └── app.js                  # D3 可视化与交互逻辑
     └── data/
-        └── imagery_data.json # 前后端交互数据契约
+        └── imagery_data.json       # 处理后的意象数据
 ```
 
 ## 快速上手
 
-### 1. 环境准备
-使用 `uv` 虚拟环境：
+### 1. 安装依赖
+
 ```bash
-# 激活虚拟环境
-source .venv/bin/activate
+# Python 依赖
+pip install jieba
+
+# 前端依赖
+pnpm install
 ```
 
-### 2. 数据处理
+### 2. 执行数据处理
+
 ```bash
 python src/process_poems.py
 ```
 
-### 3. 启动可视化预览
+### 3. 启动前端服务
+
 ```bash
-cd web
-python3 -m http.server 8000
+pnpm dev
 ```
-在浏览器中访问 `http://localhost:8000` 查看效果。
+
+启动后访问 `http://localhost:5173` 即可查看可视化页面。
