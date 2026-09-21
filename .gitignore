@@ -26,6 +26,13 @@ wheels/
 venv/
 ENV/
 
+# Node / Frontend
+node_modules/
+dist/
+.pnpm-debug.log*
+.npm
+.yarn
+
 # IDE / Editor
 .vscode/
 .idea/
