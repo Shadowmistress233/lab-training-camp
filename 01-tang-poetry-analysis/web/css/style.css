@@ -957,49 +957,88 @@ body {
   font-family: var(--font-sans);
 }
 
-/* 散点与标签 */
+/* 流派领地水彩气泡与标题 */
+.cluster-hull-container {
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.cluster-hull-path {
+  transition: fill-opacity 0.3s ease, stroke-width 0.3s ease;
+}
+
+.cluster-territory-title {
+  font-family: var(--font-serif);
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.95), 0 0 8px rgba(255, 255, 255, 0.95);
+  user-select: none;
+  pointer-events: none;
+}
+
+.cluster-territory-sub {
+  font-family: var(--font-sans);
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9), 0 0 6px rgba(255, 255, 255, 0.9);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 散点与分级标签 */
 .poet-dot-group {
   cursor: pointer;
-  transition: opacity 0.3s;
+  transition: opacity 0.3s ease;
 }
 
 .poet-dot-circle {
   transition: r 0.2s, stroke-width 0.2s, filter 0.2s;
   stroke: #ffffff;
-  stroke-width: 1.5;
+  stroke-width: 1.2;
+}
+
+.poet-dot-circle.master {
+  stroke-width: 2.2;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.25));
 }
 
 .poet-dot-group:hover .poet-dot-circle {
-  r: 9 !important;
+  r: 9.5 !important;
   stroke: #ffffff;
   stroke-width: 2.5;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
 }
 
 .poet-dot-label {
   font-size: 11px;
   font-weight: 500;
-  fill: #4a453e;
+  fill: #3a352e;
   pointer-events: none;
   user-select: none;
-  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8), 0 0 5px rgba(255, 255, 255, 0.8);
+  transition: opacity 0.25s ease;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9), 0 0 5px rgba(255, 255, 255, 0.9);
+}
+
+.poet-dot-label.master {
+  font-size: 12.5px;
+  font-weight: 700;
+  fill: #1a1816;
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 1), 0 0 8px rgba(255, 255, 255, 1);
 }
 
 .poet-dot-group.highlight .poet-dot-circle {
-  r: 10 !important;
-  stroke: #22252a;
+  r: 10.5 !important;
+  stroke: #1a1816;
   stroke-width: 2.5;
-  filter: drop-shadow(0 0 10px rgba(178, 58, 34, 0.5));
+  filter: drop-shadow(0 0 10px rgba(178, 58, 34, 0.6));
 }
 
 .poet-dot-group.highlight .poet-dot-label {
   font-weight: bold;
-  font-size: 13px;
+  font-size: 13.5px;
   fill: var(--c-vermilion);
+  opacity: 1 !important;
 }
 
 .poet-dot-group.dimmed {
-  opacity: 0.15;
+  opacity: 0.12;
 }
+
 
 

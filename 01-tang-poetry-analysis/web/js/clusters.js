@@ -1,25 +1,30 @@
 /**
- * 全唐诗大唐诗人流派聚类星空图 - D3.js v5 散点图与缩放交互引擎
- * Tang Poets Clustering Scatter Plot - D3.js v5 with Zoom & Pan
+ * 全唐诗大唐诗人流派聚类星空图 - 工业级流派群岛与分级标注引擎
+ * Tang Poets Clustering & Scatter Islands - D3.js v5 with Territory Hulls & Hierarchical Labels
  */
 
 (function () {
   'use strict';
 
-  // 全局数据状态
+  // 全局数据与交互状态
   let dataset = null;
-  let activeClusterId = null; // null 表示展示全部流派
+  let activeClusterId = null; // null: 展示全部流派
   let selectedPoet = null;
+  let currentZoomK = 1.0;
+
+  // D3 元素句柄
   let svg = null;
   let zoomG = null;
   let zoomBehavior = null;
   let xScale = null;
   let yScale = null;
+  let hullGroup = null;
+  let dotsGroup = null;
 
   // 画布几何配置
-  const WIDTH = 820;
-  const HEIGHT = 520;
-  const MARGIN = { top: 40, right: 50, bottom: 40, left: 50 };
+  const WIDTH = 860;
+  const HEIGHT = 540;
+  const MARGIN = { top: 40, right: 60, bottom: 40, left: 60 };
 
   // DOM 元素缓存
   const clusterLegendListEl = document.getElementById('cluster-legend-list');
@@ -42,19 +47,19 @@
       dataset = await d3.json(dataUrl);
 
       if (!dataset || !dataset.poets || dataset.poets.length === 0) {
-        throw new Error('诗人聚类数据集异常');
+        throw new Error('聚类数据集异常');
       }
 
-      // 渲染顶部数据统计指标
+      // 1. 渲染顶部统计
       renderTopRibbon();
 
-      // 渲染左侧流派图例卡片
+      // 2. 渲染左侧图例
       renderClusterLegend();
 
-      // 构建 D3 散点图
+      // 3. 构建核心流派群岛散点图
       setupScatterPlot();
 
-      // 绑定缩放控件按钮
+      // 4. 配置缩放按钮
       setupZoomControls();
 
     } catch (err) {
@@ -72,20 +77,20 @@
     if (!statsRibbonEl) return;
     const totalPoets = dataset.metadata.total_poets;
     const nClusters = dataset.metadata.n_clusters;
-    const varSum = d3.sum(dataset.metadata.pca_explained_variance);
+    const masterCount = dataset.poets.filter(p => p.is_master).length;
 
     statsRibbonEl.innerHTML = `
       <div class="stat-pill">
-        <span class="stat-label">聚类诗人</span>
+        <span class="stat-label">入选诗人</span>
         <span class="stat-val">${totalPoets} <small>位</small></span>
       </div>
       <div class="stat-pill">
-        <span class="stat-label">发现流派</span>
-        <span class="stat-val">${nClusters} <small>大流派</small></span>
+        <span class="stat-label">常驻名家</span>
+        <span class="stat-val">${masterCount} <small>位</small></span>
       </div>
       <div class="stat-pill">
-        <span class="stat-label">PCA解释方差</span>
-        <span class="stat-val">${(varSum * 100).toFixed(1)}%</span>
+        <span class="stat-label">流派群岛</span>
+        <span class="stat-val">${nClusters} <small>大阵营</small></span>
       </div>
     `;
   }
@@ -110,13 +115,12 @@
           <span class="cluster-count">${cluster.poet_count} 位</span>
         </div>
         <div class="cluster-keywords">
-          ${cluster.keywords.slice(0, 6).map(kw => `<span class="cluster-kw-tag">${kw}</span>`).join('')}
+          ${cluster.keywords.slice(0, 5).map(kw => `<span class="cluster-kw-tag">${kw}</span>`).join('')}
         </div>
       `;
 
       card.addEventListener('click', () => {
         if (activeClusterId === cluster.id) {
-          // 再次点击取消过滤
           activeClusterId = null;
           currentClusterFilterEl.textContent = '全部流派';
           currentClusterFilterEl.style.backgroundColor = 'rgba(178, 58, 34, 0.08)';
@@ -139,7 +143,7 @@
   }
 
   /**
-   * 构建 D3 散点图
+   * 构建 D3 散点图与流派群岛
    */
   function setupScatterPlot() {
     svg = d3.select('#scatter-plot-svg')
@@ -148,7 +152,7 @@
 
     svg.selectAll('*').remove();
 
-    // 比例尺设定
+    // 坐标比例尺（留出安全边界）
     xScale = d3.scaleLinear()
       .domain([-95, 95])
       .range([MARGIN.left, WIDTH - MARGIN.right]);
@@ -157,105 +161,166 @@
       .domain([-95, 95])
       .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
 
-    // 可缩放/平移的容器 G
+    // 可缩放/平移容器
     zoomG = svg.append('g').attr('class', 'zoom-g');
 
-    // 1. 绘制虚线网格
-    const gridTicks = [-60, -30, 0, 30, 60];
-    const gridG = zoomG.append('g').attr('class', 'scatter-grid-group');
+    // 1. 柔和古风同心刻度背景
+    drawBackgroundGrid(zoomG);
 
-    // 垂直网格线
-    gridTicks.forEach(tick => {
-      gridG.append('line')
-        .attr('class', 'scatter-grid-line')
-        .attr('x1', xScale(tick))
-        .attr('x2', xScale(tick))
-        .attr('y1', MARGIN.top)
-        .attr('y2', HEIGHT - MARGIN.bottom);
-    });
+    // 2. 流派势力气泡/平滑凸包层 (Territory Hulls)
+    hullGroup = zoomG.append('g').attr('class', 'territory-hulls-group');
+    drawClusterHulls();
 
-    // 水平网格线
-    gridTicks.forEach(tick => {
-      gridG.append('line')
-        .attr('class', 'scatter-grid-line')
-        .attr('x1', MARGIN.left)
-        .attr('x2', WIDTH - MARGIN.right)
-        .attr('y1', yScale(tick))
-        .attr('y2', yScale(tick));
-    });
+    // 3. 诗人散点与姓名层 (Dots & Labels)
+    dotsGroup = zoomG.append('g').attr('class', 'scatter-dots-group');
+    drawPoetNodes();
 
-    // 2. 绘制原点中心十字轴 (X=0, Y=0)
-    const axisG = zoomG.append('g').attr('class', 'scatter-axis-group');
-
-    axisG.append('line')
-      .attr('class', 'scatter-axis-line')
-      .attr('x1', MARGIN.left)
-      .attr('x2', WIDTH - MARGIN.right)
-      .attr('y1', yScale(0))
-      .attr('y2', yScale(0));
-
-    axisG.append('line')
-      .attr('class', 'scatter-axis-line')
-      .attr('x1', xScale(0))
-      .attr('x2', xScale(0))
-      .attr('y1', MARGIN.top)
-      .attr('y2', HEIGHT - MARGIN.bottom);
-
-    // 轴端标识
-    axisG.append('text')
-      .attr('class', 'scatter-axis-label')
-      .attr('x', WIDTH - MARGIN.right - 5)
-      .attr('y', yScale(0) - 8)
-      .attr('text-anchor', 'end')
-      .text('PCA 主成分 1 →');
-
-    axisG.append('text')
-      .attr('class', 'scatter-axis-label')
-      .attr('x', xScale(0) + 8)
-      .attr('y', MARGIN.top + 12)
-      .attr('text-anchor', 'start')
-      .text('↑ PCA 主成分 2');
-
-    // 3. 绘制诗人散点 (Data Join)
-    const dotsG = zoomG.append('g').attr('class', 'scatter-dots-group');
-
-    const poetGroups = dotsG.selectAll('.poet-dot-group')
-      .data(dataset.poets, d => d.name)
-      .enter()
-      .append('g')
-      .attr('class', 'poet-dot-group')
-      .attr('transform', d => `translate(${xScale(d.x)}, ${yScale(d.y)})`)
-      .on('mouseenter', showTooltip)
-      .on('mousemove', moveTooltip)
-      .on('mouseleave', hideTooltip)
-      .on('click', onPoetClick);
-
-    // 圆点
-    poetGroups.append('circle')
-      .attr('class', 'poet-dot-circle')
-      .attr('r', d => Math.max(4.5, Math.min(8.5, Math.sqrt(d.poem_count) * 0.16)))
-      .attr('fill', d => d.color)
-      .attr('opacity', 0.9);
-
-    // 诗人姓名文本
-    poetGroups.append('text')
-      .attr('class', 'poet-dot-label')
-      .attr('x', 7)
-      .attr('y', 3)
-      .text(d => d.name);
-
-    // 4. 配置 D3 缩放与平移 (Zoom & Pan)
+    // 4. 配置 D3 缩放与平移
     zoomBehavior = d3.zoom()
-      .scaleExtent([0.7, 5]) // 允许 0.7x 到 5x 缩放
+      .scaleExtent([0.8, 4.5])
       .on('zoom', () => {
-        zoomG.attr('transform', d3.event.transform);
+        const transform = d3.event.transform;
+        currentZoomK = transform.k;
+        zoomG.attr('transform', transform);
+
+        // 缩放级别较高时（k >= 1.6），平滑显现全部诗人姓名
+        dotsGroup.selectAll('.poet-dot-label:not(.master)')
+          .style('opacity', currentZoomK >= 1.6 ? 0.85 : 0);
       });
 
     svg.call(zoomBehavior);
   }
 
   /**
-   * 缩放控制按钮
+   * 绘制底色网格与原点十字
+   */
+  function drawBackgroundGrid(container) {
+    const gridG = container.append('g').attr('class', 'scatter-grid-group');
+    const ticks = [-60, -30, 0, 30, 60];
+
+    ticks.forEach(t => {
+      // 纵线
+      gridG.append('line')
+        .attr('class', 'scatter-grid-line')
+        .attr('x1', xScale(t)).attr('x2', xScale(t))
+        .attr('y1', MARGIN.top).attr('y2', HEIGHT - MARGIN.bottom);
+
+      // 横线
+      gridG.append('line')
+        .attr('class', 'scatter-grid-line')
+        .attr('x1', MARGIN.left).attr('x2', WIDTH - MARGIN.right)
+        .attr('y1', yScale(t)).attr('y2', yScale(t));
+    });
+  }
+
+  /**
+   * 绘制四大流派的“水彩领地气泡” (Smooth Convex Hulls)
+   */
+  function drawClusterHulls() {
+    dataset.clusters.forEach(cluster => {
+      const poetsInCluster = dataset.poets.filter(p => p.cluster_id === cluster.id);
+      if (poetsInCluster.length < 3) return;
+
+      // 提取像素坐标点
+      const points = poetsInCluster.map(p => [xScale(p.x), yScale(p.y)]);
+      
+      // 计算凸包顶点
+      const hull = d3.polygonHull(points);
+      if (!hull) return;
+
+      // 计算领地中心点（重心）
+      const cx = d3.mean(hull, d => d[0]);
+      const cy = d3.mean(hull, d => d[1]);
+
+      // 对凸包顶点进行向外柔和外扩（Padding 24px），使点位于气泡内部
+      const paddedHull = hull.map(([x, y]) => {
+        const dx = x - cx;
+        const dy = y - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const pad = 26;
+        return [x + (dx / dist) * pad, y + (dy / dist) * pad];
+      });
+
+      // 平滑闭合曲线生成器
+      const lineGen = d3.line()
+        .curve(d3.curveCatmullRomClosed.alpha(0.6))
+        .x(d => d[0])
+        .y(d => d[1]);
+
+      const clusterHullG = hullGroup.append('g')
+        .attr('class', `cluster-hull-container cluster-hull-${cluster.id}`);
+
+      // 1. 水彩半透明领地底色
+      clusterHullG.append('path')
+        .attr('d', lineGen(paddedHull))
+        .attr('class', 'cluster-hull-path')
+        .attr('fill', cluster.color)
+        .attr('fill-opacity', 0.08)
+        .attr('stroke', cluster.color)
+        .attr('stroke-opacity', 0.35)
+        .attr('stroke-width', 1.5)
+        .attr('stroke-dasharray', '4 4');
+
+      // 2. 领地中央古典大标题 (Territory Banner)
+      clusterHullG.append('text')
+        .attr('class', 'cluster-territory-title')
+        .attr('x', cx)
+        .attr('y', cy - 10)
+        .attr('text-anchor', 'middle')
+        .attr('fill', cluster.color)
+        .attr('font-size', '13px')
+        .attr('font-weight', 'bold')
+        .attr('letter-spacing', '1.5px')
+        .text(`【${cluster.name}】`);
+
+      clusterHullG.append('text')
+        .attr('class', 'cluster-territory-sub')
+        .attr('x', cx)
+        .attr('y', cy + 10)
+        .attr('text-anchor', 'middle')
+        .attr('fill', cluster.color)
+        .attr('font-size', '10px')
+        .attr('opacity', 0.75)
+        .attr('letter-spacing', '1px')
+        .text(cluster.keywords.slice(0, 4).join(' · '));
+    });
+  }
+
+  /**
+   * 绘制诗人散点与分级标注 (Hierarchical Nodes)
+   */
+  function drawPoetNodes() {
+    const poetGroups = dotsGroup.selectAll('.poet-dot-group')
+      .data(dataset.poets, d => d.name)
+      .enter()
+      .append('g')
+      .attr('class', d => `poet-dot-group ${d.is_master ? 'master' : ''}`)
+      .attr('transform', d => `translate(${xScale(d.x)}, ${yScale(d.y)})`)
+      .on('mouseenter', showTooltip)
+      .on('mousemove', moveTooltip)
+      .on('mouseleave', hideTooltip)
+      .on('click', onPoetClick);
+
+    // 1. 诗人圆点
+    poetGroups.append('circle')
+      .attr('class', d => `poet-dot-circle ${d.is_master ? 'master' : ''}`)
+      .attr('r', d => (d.is_master ? 7.5 : Math.max(4.5, Math.sqrt(d.poem_count) * 0.14)))
+      .attr('fill', d => d.color)
+      .attr('stroke', '#ffffff')
+      .attr('stroke-width', d => (d.is_master ? 2 : 1.2))
+      .attr('opacity', 0.92);
+
+    // 2. 诗人姓名文本（分级标注）
+    poetGroups.append('text')
+      .attr('class', d => `poet-dot-label ${d.is_master ? 'master' : ''}`)
+      .attr('x', 9)
+      .attr('y', 4)
+      .style('opacity', d => (d.is_master ? 1 : 0)) // 宗师常驻显示，普通诗人默认隐去避让
+      .text(d => d.name);
+  }
+
+  /**
+   * 缩放控制按钮绑定
    */
   function setupZoomControls() {
     if (zoomInBtn) {
@@ -278,10 +343,11 @@
   }
 
   /**
-   * 更新散点图显示状态（过滤/高亮）
+   * 过滤与高亮调度
    */
   function updateScatterDisplay() {
-    zoomG.selectAll('.poet-dot-group')
+    // 更新点的高亮与半透明
+    dotsGroup.selectAll('.poet-dot-group')
       .each(function (d) {
         const group = d3.select(this);
         const isDimmed = activeClusterId !== null && d.cluster_id !== activeClusterId;
@@ -289,6 +355,23 @@
 
         group.classed('dimmed', isDimmed);
         group.classed('highlight', isSelected);
+
+        // 如果该流派被过滤选中，临时显现该流派所有诗人的名字
+        if (activeClusterId !== null && d.cluster_id === activeClusterId) {
+          group.select('.poet-dot-label').style('opacity', 1);
+        } else if (!d.is_master && currentZoomK < 1.6) {
+          group.select('.poet-dot-label').style('opacity', 0);
+        }
+      });
+
+    // 更新领地气泡的高亮
+    hullGroup.selectAll('.cluster-hull-container')
+      .each(function (d, i) {
+        const isCurrent = activeClusterId === null || activeClusterId === i;
+        d3.select(this).style('opacity', isCurrent ? 1 : 0.15);
+        d3.select(this).select('.cluster-hull-path')
+          .attr('fill-opacity', activeClusterId === i ? 0.16 : 0.08)
+          .attr('stroke-width', activeClusterId === i ? 2.5 : 1.5);
       });
   }
 
@@ -307,17 +390,17 @@
         <span class="sel-detail-val" style="color: ${poet.color}">【${poet.cluster_name}】</span>
       </div>
       <div class="sel-detail-row">
-        <span class="sel-detail-label">收录诗作:</span>
-        <span class="sel-detail-val">${poet.poem_count.toLocaleString()} 首</span>
+        <span class="sel-detail-label">诗作数量:</span>
+        <span class="sel-detail-val">${poet.poem_count.toLocaleString()} 首 ${poet.is_master ? '<strong style="color:#b23a22">（文学宗师）</strong>' : ''}</span>
       </div>
       <div class="sel-detail-row">
-        <span class="sel-detail-label">特征词汇:</span>
-        <div style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px;">
+        <span class="sel-detail-label">高频用词:</span>
+        <div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px;">
           ${poet.top_words.map(w => `<span class="poet-badge"><strong>${w}</strong></span>`).join('')}
         </div>
       </div>
       <div style="font-size: 0.75rem; color: #9c9284; margin-top: 8px;">
-        💡 空间坐标: X = ${poet.x}, Y = ${poet.y} (PCA 降维二维投影)
+        💡 空间分布: 属于【${poet.cluster_name}】核心语料群岛。
       </div>
     `;
   }
@@ -329,7 +412,9 @@
     tooltipEl.style.opacity = '1';
     tooltipEl.innerHTML = `
       <div class="tt-header">
-        <span class="tt-word" style="color: ${d.color}">${d.name}</span>
+        <span class="tt-word" style="color: ${d.color}">
+          ${d.name} ${d.is_master ? '<small style="font-size:0.75rem; background:#b23a22; color:#fff; padding:1px 4px; border-radius:2px;">名家</small>' : ''}
+        </span>
         <span class="tt-count">${d.poem_count} 首诗</span>
       </div>
       <div style="font-size: 0.85rem; font-weight: bold; color: ${d.color}; margin-bottom: 6px;">
@@ -340,9 +425,12 @@
         ${d.top_words.map(w => `<span class="poet-badge">${w}</span>`).join('')}
       </div>
       <div style="font-size: 0.75rem; color: #95a5a6; margin-top: 4px;">
-        💡 点击圆点可在左侧固定锁定该诗人。
+        💡 点击可锁定该诗人；双击或滚轮可放大该区域。
       </div>
     `;
+
+    // 悬停时无论是否宗师都临时显示姓名
+    d3.select(this).select('.poet-dot-label').style('opacity', 1);
   }
 
   function moveTooltip() {
@@ -350,8 +438,12 @@
     tooltipEl.style.top = (d3.event.pageY - 28) + 'px';
   }
 
-  function hideTooltip() {
+  function hideTooltip(d) {
     tooltipEl.style.opacity = '0';
+    // 恢复原来的可见性
+    if (d && !d.is_master && activeClusterId !== d.cluster_id && currentZoomK < 1.6) {
+      d3.select(this).select('.poet-dot-label').style('opacity', 0);
+    }
   }
 
   // 页面加载启动

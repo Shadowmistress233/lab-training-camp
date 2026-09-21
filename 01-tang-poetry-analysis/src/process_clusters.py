@@ -19,7 +19,13 @@ import numpy as np
 from collections import defaultdict
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+
+# 核心文学宗师名单（散点图中默认高亮显示名字，其他诗人悬停/放大显示）
+CORE_MASTERS = {
+    "李白", "杜甫", "白居易", "王维", "孟浩然", "高适", "岑参", 
+    "李商隐", "杜牧", "贾岛", "孟郊", "刘禹锡", "温庭筠", "韦应物", "齐己", "元稹"
+}
 
 # 古典汉语停用词与高频虚词（过滤语法杂音与泛用套话，突出具有流派特征的实体名词、意象与情感词）
 STOP_WORDS = {
@@ -120,12 +126,17 @@ def perform_clustering_and_pca(poet_names, poet_counts, corpus_tokenized, n_clus
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=15)
     cluster_labels = kmeans.fit_predict(tfidf_matrix)
 
-    # PCA 降维至 2 维
-    print("[*] 5. 执行 PCA 主成分分析降维至二维平面...")
-    pca = PCA(n_components=2, random_state=42)
-    coords_2d = pca.fit_transform(tfidf_matrix.toarray())
-    explained_var = pca.explained_variance_ratio_
-    print(f"[*] PCA 解释方差比: 主成分1 = {explained_var[0]:.2%}, 主成分2 = {explained_var[1]:.2%}")
+    # t-SNE 流形学习降维至 2 维（流派群岛化分离，彻底解决中心扎堆与拥挤问题）
+    print("[*] 5. 执行 t-SNE 流形降维 (群岛化流派分离)...")
+    tsne = TSNE(
+        n_components=2,
+        perplexity=10,
+        random_state=42,
+        max_iter=1500,
+        learning_rate="auto",
+        init="pca"
+    )
+    coords_2d = tsne.fit_transform(tfidf_matrix.toarray())
 
     # 坐标归一化到 [-80, 80] 区间，保证 D3 画布居中友好
     x_min, x_max = coords_2d[:, 0].min(), coords_2d[:, 0].max()
@@ -161,7 +172,7 @@ def perform_clustering_and_pca(poet_names, poet_counts, corpus_tokenized, n_clus
         "metadata": {
             "total_poets": len(poet_names),
             "n_clusters": n_clusters,
-            "pca_explained_variance": [float(explained_var[0]), float(explained_var[1])]
+            "method": "t-SNE (群岛化降维)"
         },
         "clusters": [
             {
@@ -190,6 +201,7 @@ def perform_clustering_and_pca(poet_names, poet_counts, corpus_tokenized, n_clus
             "cluster_id": c_id,
             "cluster_name": cluster_names[c_id],
             "color": CLUSTER_COLORS[c_id % len(CLUSTER_COLORS)],
+            "is_master": name in CORE_MASTERS,
             "x": round(float(x_norm[i]), 2),
             "y": round(float(y_norm[i]), 2),
             "top_words": top_words
