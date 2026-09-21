@@ -18,8 +18,8 @@ const CATEGORY_THEMES = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 加载数据契约
-  d3.json("data/imagery_data.json")
+  // 加载数据契约（追加动态时间戳，开发阶段彻底杜绝浏览器缓存）
+  d3.json("data/imagery_data.json?t=" + Date.now())
     .then(data => {
       initApp(data);
     })
