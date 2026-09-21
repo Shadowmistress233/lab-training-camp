@@ -457,3 +457,304 @@ body {
   margin-top: 4px;
   font-family: var(--font-sans);
 }
+
+/* ---------------- 顶部模块导航 (MPA Navigation) ---------------- */
+.top-nav {
+  background: #fdfbf7;
+  border-bottom: 1px solid var(--border-light);
+  padding: 0 36px;
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  gap: 8px;
+}
+
+.nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  color: var(--text-sub);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  transition: all 0.25s ease;
+  font-family: var(--font-serif);
+}
+
+.nav-tab:hover {
+  color: var(--c-vermilion);
+  background: rgba(178, 58, 34, 0.03);
+}
+
+.nav-tab.active {
+  color: var(--c-vermilion);
+  border-bottom-color: var(--c-vermilion);
+  font-weight: 700;
+}
+
+.nav-symbol {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* ---------------- 诗人列表面板 (Poet Ranking List) ---------------- */
+.poet-rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* 自定义古风滚动条 */
+.poet-rank-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.poet-rank-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+}
+
+.poet-rank-list::-webkit-scrollbar-thumb {
+  background: #d8d0c2;
+  border-radius: 4px;
+}
+
+.poet-rank-list::-webkit-scrollbar-thumb:hover {
+  background: var(--c-vermilion);
+}
+
+.poet-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.poet-item:hover {
+  border-color: #d1bfa9;
+  transform: translateX(3px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.poet-item.active {
+  background: #fdf7f2;
+  border-color: var(--c-vermilion);
+  box-shadow: 0 2px 10px rgba(178, 58, 34, 0.1);
+}
+
+.poet-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.poet-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #eae3d5;
+  color: var(--text-ink);
+  font-size: 0.75rem;
+  font-weight: bold;
+  font-family: var(--font-sans);
+}
+
+.poet-item.active .poet-rank-badge {
+  background: var(--c-vermilion);
+  color: #ffffff;
+}
+
+.poet-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-ink);
+  letter-spacing: 1px;
+}
+
+.poet-item.active .poet-name {
+  color: var(--c-vermilion);
+}
+
+.poet-item-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.poet-count-tag {
+  font-size: 0.8rem;
+  color: var(--text-sub);
+  font-family: var(--font-sans);
+}
+
+.poet-dominant-badge {
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(44, 62, 80, 0.06);
+  color: var(--c-indigo);
+  font-family: var(--font-sans);
+}
+
+.poet-item.active .poet-dominant-badge {
+  background: rgba(178, 58, 34, 0.1);
+  color: var(--c-vermilion);
+}
+
+/* ---------------- 极坐标图表与名句卡片 (Polar Chart Stage) ---------------- */
+.dominant-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: rgba(178, 58, 34, 0.08);
+  color: var(--c-vermilion);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-left: 12px;
+  border: 1px solid rgba(178, 58, 34, 0.2);
+}
+
+.polar-stage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 480px;
+  padding: 20px;
+}
+
+#polar-chart-svg {
+  width: 100%;
+  height: 480px;
+  overflow: visible;
+}
+
+.polar-grid-circle {
+  fill: none;
+  stroke: #e4ddcf;
+  stroke-dasharray: 3 3;
+}
+
+.polar-grid-label {
+  fill: #a09789;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  text-anchor: middle;
+}
+
+.polar-axis-line {
+  stroke: #e0d8c9;
+  stroke-width: 1;
+}
+
+.polar-axis-label {
+  font-size: 13px;
+  font-weight: bold;
+  fill: var(--text-ink);
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: fill 0.2s;
+}
+
+.polar-axis-label:hover {
+  fill: var(--c-vermilion);
+}
+
+.polar-bar-arc {
+  cursor: pointer;
+  transition: opacity 0.25s, filter 0.25s;
+}
+
+.polar-bar-arc:hover {
+  opacity: 0.9 !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
+}
+
+/* ---------------- 底部诗句赏析卡片 ---------------- */
+.poet-verse-card {
+  margin-top: 16px;
+  background: #fdfbf7;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.verse-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed var(--border-light);
+  padding-bottom: 8px;
+}
+
+.verse-icon {
+  font-size: 1.1rem;
+}
+
+.verse-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-ink);
+  letter-spacing: 1px;
+}
+
+.verse-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.verse-item {
+  background: #ffffff;
+  border-left: 3px solid var(--c-vermilion);
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+}
+
+.verse-item-emo {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--c-vermilion);
+  margin-bottom: 4px;
+}
+
+.verse-item-text {
+  font-size: 0.92rem;
+  color: var(--text-ink);
+  line-height: 1.6;
+}
+
+.verse-item-title {
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  text-align: right;
+  margin-top: 6px;
+  font-family: var(--font-sans);
+}
+
+.trigger-highlight {
+  color: var(--c-vermilion);
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+

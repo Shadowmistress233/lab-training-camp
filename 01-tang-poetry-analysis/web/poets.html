@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大唐诗人多维情感偏好画像</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 顶部古典画卷式标题栏 -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="seal-mark">唐風</div>
+      <div class="title-group">
+        <h1 class="main-title">全唐詩大唐詩人多維情感畫像</h1>
+        <p class="sub-title">基于《全唐诗》全量文本与自然语言处理的情感特征挖掘 · 极坐标多维罗盘呈现</p>
+      </div>
+      <div class="stats-ribbon" id="poet-stats-ribbon">
+        <!-- 统计指标由 JS 动态计算 -->
+      </div>
+    </div>
+  </header>
+
+  <!-- 顶部模块导航 -->
+  <nav class="top-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-tab">
+        <span class="nav-symbol">◇</span> 意象词频全景
+      </a>
+      <a href="poets.html" class="nav-tab active">
+        <span class="nav-symbol">◈</span> 诗人情感画像
+      </a>
+    </div>
+  </nav>
+
+  <!-- 主体左右联动区域 -->
+  <main class="main-container poet-view-container">
+    <!-- 左侧：诗人排行榜单（滑动选择区） -->
+    <aside class="left-panel poet-list-panel">
+      <div class="panel-header">
+        <span class="panel-icon">❖</span>
+        <h2 class="panel-title">诗人名录</h2>
+        <span class="panel-hint" id="poet-count-hint">按作品总量排序</span>
+      </div>
+      <div class="poet-rank-list" id="poet-rank-list">
+        <!-- 由 JavaScript 依据数据契约动态渲染 -->
+      </div>
+    </aside>
+
+    <!-- 右侧：D3 极坐标柱状图与诗句赏析 -->
+    <section class="right-panel poet-detail-panel">
+      <div class="chart-header">
+        <div class="active-category-info">
+          <span class="cat-tag" id="current-poet-rank">#1</span>
+          <h2 class="current-cat-name" id="current-poet-name">正在加载诗人...</h2>
+          <span class="dominant-tag" id="current-poet-dominant">-</span>
+        </div>
+        <div class="chart-controls">
+          <span class="chart-metric">收录诗作：<strong id="current-poet-poems">0</strong> 首</span>
+        </div>
+      </div>
+
+      <!-- D3 极坐标罗盘主渲染容器 -->
+      <div class="chart-stage polar-stage" id="polar-chart-stage">
+        <svg id="polar-chart-svg"></svg>
+      </div>
+
+      <!-- 底部诗人代表名句与情感词云赏析 -->
+      <div class="poet-verse-card" id="poet-verse-card">
+        <div class="verse-header">
+          <span class="verse-icon">📜</span>
+          <span class="verse-title">代表名句与情感印记</span>
+        </div>
+        <div class="verse-content" id="verse-content">
+          <!-- 动态填充代表诗句 -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 浮动 Tooltip -->
+  <div class="tooltip" id="tooltip" style="opacity: 0;"></div>
+
+  <!-- D3.js (v5) -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@5/dist/d3.min.js"></script>
+  <!-- 主逻辑 (Vite 现代 ES Module 模式) -->
+  <script type="module" src="js/poets.js"></script>
+</body>
+</html>

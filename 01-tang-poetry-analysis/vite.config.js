@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -6,9 +7,15 @@ export default defineConfig({
   build: {
     outDir: '../dist',
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: resolve(import.meta.dirname, 'web/index.html'),
+        poets: resolve(import.meta.dirname, 'web/poets.html'),
+      },
+    },
   },
   server: {
     port: 5173,
-    host: true, // 允许局域网或本地多端访问
+    host: true,
   }
 });
