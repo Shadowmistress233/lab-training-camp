@@ -20,6 +20,7 @@ from collections import defaultdict
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from sklearn.manifold import TSNE
+from sklearn.metrics import silhouette_score, silhouette_samples
 
 # 核心文学宗师名单（散点图中默认高亮显示名字，其他诗人悬停/放大显示）
 CORE_MASTERS = {
@@ -126,6 +127,17 @@ def perform_clustering_and_pca(poet_names, poet_counts, corpus_tokenized, n_clus
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=15)
     cluster_labels = kmeans.fit_predict(tfidf_matrix)
 
+    # 聚类质量评估：计算轮廓系数 (Silhouette Score)
+    silhouette_avg = silhouette_score(tfidf_matrix, cluster_labels)
+    print(f"[✓] 聚类质量评估 - 轮廓系数 (Silhouette Score): {silhouette_avg:.4f}")
+    print(f"    (范围 [-1, 1]，> 0.5 表示聚类质量良好，> 0.7 表示优秀)")
+
+    # 计算各簇内部的平均轮廓系数
+    silhouette_vals = silhouette_samples(tfidf_matrix, cluster_labels)
+    for c_id in range(n_clusters):
+        cluster_silhouette = silhouette_vals[cluster_labels == c_id].mean()
+        print(f"    簇 {c_id} 轮廓系数: {cluster_silhouette:.4f}")
+
     # t-SNE 流形学习降维至 2 维（流派群岛化分离，彻底解决中心扎堆与拥挤问题）
     print("[*] 5. 执行 t-SNE 流形降维 (群岛化流派分离)...")
     tsne = TSNE(
@@ -152,27 +164,69 @@ def perform_clustering_and_pca(poet_names, poet_counts, corpus_tokenized, n_clus
         top_indices = centroids[c_id].argsort()[::-1][:8]
         cluster_keywords[c_id] = feature_names[top_indices].tolist()
 
-    # 智能为各簇打上文学流派标签
+    # 智能为各簇打上文学流派标签（优化版：计分系统，避免重复标签）
     cluster_names = {}
     for c_id, kws in cluster_keywords.items():
-        kw_str = "".join(kws)
-        if any(w in kw_str for w in ["马", "剑", "旗", "胡", "沙", "城", "边", "军", "烽"]):
-            cluster_names[c_id] = "边塞关山 / 豪迈壮阔"
-        elif any(w in kw_str for w in ["禅", "僧", "松", "泉", "竹", "幽", "白云", "青山"]):
-            cluster_names[c_id] = "山水田园 / 禅意幽栖"
-        elif any(w in kw_str for w in ["惆怅", "芳草", "落花", "夕阳", "秋风", "回首"]):
-            cluster_names[c_id] = "晚唐羁旅 / 叹惋伤感"
-        elif any(w in kw_str for w in ["寒", "瘦", "泪", "骨", "孤", "苦", "啼", "凄"]):
-            cluster_names[c_id] = "苦吟冷峭 / 凄苦身世"
+        # 计算每个流派类别的特征得分
+        scores = {}
+
+        # 边塞豪迈特征
+        scores['边塞关山 / 豪迈壮阔'] = sum(1 for kw in kws if any(w in kw for w in ["马", "剑", "旗", "胡", "沙", "城", "边", "军", "烽", "战", "将军", "少年", "长安"]))
+
+        # 晚唐感伤羁旅特征（强调惆怅、芳草、落花）
+        scores['晚唐羁旅 / 叹惋伤感'] = sum(1 for kw in kws if any(w in kw for w in ["惆怅", "芳草", "落花", "伤春", "惜别"]))
+
+        # 苦吟冷峭特征
+        scores['苦吟冷峭 / 凄苦身世'] = sum(1 for kw in kws if any(w in kw for w in ["寒", "瘦", "泪", "骨", "孤", "苦", "啼", "凄", "寂", "冷"]))
+
+        # 禅意幽栖特征（强调松、竹、泉、寺）
+        scores['禅门幽栖 / 清修淡泊'] = sum(1 for kw in kws if any(w in kw for w in ["禅", "僧", "松", "泉", "竹", "寺", "钟"]))
+
+        # 山水田园特征（强调青山、白云、明月、流水）
+        scores['山水田园 / 自然诗意'] = sum(1 for kw in kws if any(w in kw for w in ["白云", "青山", "明月", "流水", "洞庭"]))
+
+        # 相思感怀特征
+        scores['相思感怀 / 离别追忆'] = sum(1 for kw in kws if kw in ["相思", "离别", "故乡", "怀人", "梦回"])
+
+        # 盛唐气象特征（强调人间、天下、春风等宏大词汇）
+        scores['盛唐气象 / 宏大世情'] = sum(1 for kw in kws if any(w in kw for w in ["人间", "天下", "春风", "江山"]))
+
+        # 选择得分最高的类别
+        if max(scores.values()) > 0:
+            cluster_names[c_id] = max(scores.items(), key=lambda x: x[1])[0]
         else:
             cluster_names[c_id] = "盛唐气象 / 宏大世情"
+
+    # 防止重复标签：如果有重复，给后面的簇加上编号区分
+    used_names = {}
+    final_names = {}
+    for c_id in range(n_clusters):
+        name = cluster_names[c_id]
+        if name in used_names:
+            # 根据关键词微调命名
+            kws = cluster_keywords[c_id]
+            if "明月" in kws or "青山" in kws:
+                final_names[c_id] = "山水清幽 / 月夜诗意"
+            elif "夕阳" in kws or "秋风" in kws:
+                final_names[c_id] = "秋色羁旅 / 夕照伤怀"
+            elif "白云" in kws or "人间" in kws:
+                final_names[c_id] = "闲适旷达 / 云水悠然"
+            else:
+                final_names[c_id] = f"{name} (流派{used_names[name] + 1})"
+            used_names[name] += 1
+        else:
+            final_names[c_id] = name
+            used_names[name] = 1
+
+    cluster_names = final_names
 
     # 组装输出数据
     output = {
         "metadata": {
             "total_poets": len(poet_names),
             "n_clusters": n_clusters,
-            "method": "t-SNE (群岛化降维)"
+            "method": "t-SNE (群岛化降维)",
+            "silhouette_score": round(float(silhouette_avg), 4)
         },
         "clusters": [
             {
@@ -225,6 +279,7 @@ def main():
         json.dump(cluster_data, f, ensure_ascii=False, indent=2)
 
     print(f"[✓] 成功生成诗人流派聚类数据契约: {output_path}")
+    print(f"[*] 聚类质量总评: 轮廓系数 {cluster_data['metadata']['silhouette_score']:.4f}")
     print("[*] 聚类簇概览:")
     for c in cluster_data["clusters"]:
         print(f"    簇 #{c['id']} [{c['name']}] ({c['poet_count']}位诗人): 核心词 -> {'、'.join(c['keywords'][:5])}")

@@ -1012,14 +1012,20 @@ body {
   pointer-events: none;
   user-select: none;
   transition: opacity 0.25s ease;
-  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9), 0 0 5px rgba(255, 255, 255, 0.9);
+  paint-order: stroke fill;
+  stroke: #ffffff;
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 
 .poet-dot-label.master {
   font-size: 12.5px;
   font-weight: 700;
   fill: #1a1816;
-  text-shadow: 0 1px 4px rgba(255, 255, 255, 1), 0 0 8px rgba(255, 255, 255, 1);
+  paint-order: stroke fill;
+  stroke: #ffffff;
+  stroke-width: 4px;
+  stroke-linejoin: round;
 }
 
 .poet-dot-group.highlight .poet-dot-circle {

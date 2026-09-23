@@ -3,6 +3,10 @@ node_modules/
 .venv/
 venv/
 env/
+package-lock.json
+yarn.lock
+bun.lock
+bun.lockb
 
 # Build outputs
 dist/

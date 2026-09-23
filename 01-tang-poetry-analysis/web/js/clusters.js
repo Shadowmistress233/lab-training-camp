@@ -78,10 +78,9 @@
     const totalPoets = dataset.metadata.total_poets;
     const nClusters = dataset.metadata.n_clusters;
     const masterCount = dataset.poets.filter(p => p.is_master).length;
-
     statsRibbonEl.innerHTML = `
       <div class="stat-pill">
-        <span class="stat-label">入选诗人</span>
+        <span class="stat-label">聚类诗人</span>
         <span class="stat-val">${totalPoets} <small>位</small></span>
       </div>
       <div class="stat-pill">
@@ -91,6 +90,10 @@
       <div class="stat-pill">
         <span class="stat-label">流派群岛</span>
         <span class="stat-val">${nClusters} <small>大阵营</small></span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-label">降维流形</span>
+        <span class="stat-val">t-SNE</span>
       </div>
     `;
   }
@@ -310,7 +313,7 @@
       .attr('stroke-width', d => (d.is_master ? 2 : 1.2))
       .attr('opacity', 0.92);
 
-    // 2. 诗人姓名文本（分级标注）
+    // 2. 诗人姓名文本（分级标注，依托 CSS 纯净白描边光晕防遮挡）
     poetGroups.append('text')
       .attr('class', d => `poet-dot-label ${d.is_master ? 'master' : ''}`)
       .attr('x', 9)
