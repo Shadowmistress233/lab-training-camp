@@ -40,6 +40,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
   background-image: radial-gradient(#e5dfd3 0.75px, transparent 0.75px);
   background-size: 20px 20px;
 }
@@ -1031,6 +1032,195 @@ body {
 
 .poet-dot-group.dimmed {
   opacity: 0.12;
+}
+
+/* ==========================================================================
+   移动端与窄屏响应式适配 (Responsive Adaptation for Mobile & Tablet)
+   ========================================================================== */
+
+/* 平板与大屏手机断点 (<= 992px) */
+@media (max-width: 992px) {
+  .header {
+    padding: 18px 20px;
+  }
+
+  .header-inner {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .stats-ribbon {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .top-nav {
+    padding: 0 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-container {
+    width: max-content;
+  }
+
+  .main-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 16px;
+    margin: 18px auto;
+  }
+
+  /* 核心视觉图表置顶，过滤控制卡片排在下方 */
+  .right-panel {
+    order: 1;
+    padding: 20px 16px;
+  }
+
+  .left-panel {
+    order: 2;
+    padding: 20px 16px;
+  }
+
+  .poet-rank-list {
+    max-height: 360px;
+  }
+}
+
+/* 手机竖屏断点 (<= 640px) */
+@media (max-width: 640px) {
+  .header {
+    padding: 14px 12px;
+  }
+
+  .seal-mark {
+    font-size: 1rem;
+    padding: 4px 8px;
+  }
+
+  .main-title {
+    font-size: 1.25rem;
+    letter-spacing: 0.5px;
+  }
+
+  .sub-title {
+    font-size: 0.78rem;
+    margin-top: 2px;
+  }
+
+  .stats-ribbon {
+    gap: 6px;
+  }
+
+  .stat-pill {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
+
+  .top-nav {
+    padding: 0 8px;
+  }
+
+  .nav-tab {
+    padding: 9px 10px;
+    font-size: 0.82rem;
+    gap: 4px;
+  }
+
+  .main-container {
+    padding: 0 10px;
+    margin: 10px auto;
+    gap: 12px;
+  }
+
+  .right-panel {
+    padding: 14px 10px;
+    border-radius: 8px;
+  }
+
+  .left-panel {
+    padding: 14px 10px;
+    border-radius: 8px;
+  }
+
+  .chart-header {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+  }
+
+  .current-cat-name {
+    font-size: 1.15rem;
+  }
+
+  .current-cat-desc {
+    font-size: 0.78rem;
+  }
+
+  /* 图表舞台适配手机高宽 */
+  .chart-stage {
+    height: 330px;
+  }
+
+  .polar-stage {
+    min-height: 330px;
+    padding: 4px;
+  }
+
+  #polar-chart-svg {
+    height: 330px;
+  }
+
+  .scatter-stage {
+    min-height: 340px;
+  }
+
+  #scatter-plot-svg {
+    height: 340px;
+  }
+
+  .footer-tip {
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  /* 浮动卡片与列表优化 */
+  .tooltip {
+    max-width: 250px;
+    padding: 10px;
+    font-size: 0.78rem;
+  }
+
+  .poet-rank-list {
+    max-height: 260px;
+  }
+
+  .poet-item {
+    padding: 8px 10px;
+  }
+
+  .poet-name {
+    font-size: 0.95rem;
+  }
+
+  .category-cards {
+    gap: 10px;
+  }
+
+  .cat-card {
+    padding: 12px;
+  }
+
+  .cluster-legend-list {
+    gap: 10px;
+  }
+
+  .cluster-legend-card {
+    padding: 10px 12px;
+  }
 }
 
 
