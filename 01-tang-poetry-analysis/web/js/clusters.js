@@ -183,7 +183,8 @@
     hullGroup = zoomG.append('g').attr('class', 'territory-hulls-group');
     drawClusterHulls();
 
-    // 3. 诗人散点与姓名层 (Dots & Labels)
+    // 3. 诗人散点与姓名层 (Dots & Labels with 8-direction adaptive layout)
+    computeAdaptiveLabelLayout();
     dotsGroup = zoomG.append('g').attr('class', 'scatter-dots-group');
     drawPoetNodes();
 
@@ -279,7 +280,182 @@
 
 
   /**
-   * 绘制诗人散点与分级标注 (Hierarchical Nodes)
+   * 八方向自适应投射避让标注算法 (8-Direction Adaptive Raycasting Label Placement)
+   * 自动探测诗人周围 8 个象限的空旷度与遮挡情况，自适应选出最优朝向与对齐方式
+   */
+  function computeAdaptiveLabelLayout() {
+    // 8 个候选方向配置及符合自然阅读习惯的基础偏好分 (pref)
+    const DIRECTIONS = [
+      { name: 'E',  pref: 0 },
+      { name: 'NE', pref: 2 },
+      { name: 'SE', pref: 3 },
+      { name: 'N',  pref: 4 },
+      { name: 'S',  pref: 5 },
+      { name: 'W',  pref: 6 },
+      { name: 'NW', pref: 7 },
+      { name: 'SW', pref: 8 }
+    ];
+
+    // 预提取所有诗人的像素坐标与基础几何属性
+    const poetNodes = dataset.poets.map(p => {
+      const px = xScale(p.x);
+      const py = yScale(p.y);
+      const r = p.is_master ? 7.5 : Math.max(4.5, Math.sqrt(p.poem_count) * 0.14);
+      const textW = p.name.length * 12 + 4; // 11px 中文字体宽度预估与缓冲
+      const textH = 13;
+      return { poet: p, px, py, r, textW, textH };
+    });
+
+    // 优先级排序：宗师诗人优先霸占黄金无碰撞位置，其余按诗作篇数排序
+    const sortedNodes = [...poetNodes].sort((a, b) => {
+      if (a.poet.is_master && !b.poet.is_master) return -1;
+      if (!a.poet.is_master && b.poet.is_master) return 1;
+      return (b.poet.poem_count || 0) - (a.poet.poem_count || 0);
+    });
+
+    // 各方向几何包围盒与相对偏移计算
+    function getDirectionBox(node, dirName) {
+      const { px, py, r, textW, textH } = node;
+      let x1, y1, x2, y2, dx, dy, anchor;
+
+      switch (dirName) {
+        case 'E':
+          dx = r + 4;
+          dy = 4;
+          anchor = 'start';
+          x1 = px + dx;
+          x2 = x1 + textW;
+          y1 = py - 9;
+          y2 = py + 5;
+          break;
+        case 'W':
+          dx = -r - 4;
+          dy = 4;
+          anchor = 'end';
+          x2 = px + dx;
+          x1 = x2 - textW;
+          y1 = py - 9;
+          y2 = py + 5;
+          break;
+        case 'N':
+          dx = 0;
+          dy = -r - 4;
+          anchor = 'middle';
+          x1 = px - textW / 2;
+          x2 = px + textW / 2;
+          y2 = py + dy;
+          y1 = y2 - textH;
+          break;
+        case 'S':
+          dx = 0;
+          dy = r + textH;
+          anchor = 'middle';
+          x1 = px - textW / 2;
+          x2 = px + textW / 2;
+          y1 = py + r + 2;
+          y2 = y1 + textH;
+          break;
+        case 'NE':
+          dx = r + 2;
+          dy = -r;
+          anchor = 'start';
+          x1 = px + dx;
+          x2 = x1 + textW;
+          y2 = py + dy;
+          y1 = y2 - textH;
+          break;
+        case 'NW':
+          dx = -r - 2;
+          dy = -r;
+          anchor = 'end';
+          x2 = px + dx;
+          x1 = x2 - textW;
+          y2 = py + dy;
+          y1 = y2 - textH;
+          break;
+        case 'SE':
+          dx = r + 2;
+          dy = r + textH;
+          anchor = 'start';
+          x1 = px + dx;
+          x2 = x1 + textW;
+          y1 = py + r + 2;
+          y2 = y1 + textH;
+          break;
+        case 'SW':
+          dx = -r - 2;
+          dy = r + textH;
+          anchor = 'end';
+          x2 = px + dx;
+          x1 = x2 - textW;
+          y1 = py + r + 2;
+          y2 = y1 + textH;
+          break;
+      }
+      return { box: [x1, y1, x2, y2], dx, dy, anchor };
+    }
+
+    // 碰撞检测辅助：矩形与矩形相交
+    function isBoxOverlap(b1, b2, pad = 2) {
+      return !(b1[2] + pad < b2[0] || b1[0] - pad > b2[2] || b1[3] + pad < b2[1] || b1[1] - pad > b2[3]);
+    }
+
+    // 碰撞检测辅助：圆点进入矩形
+    function isDotInBox(b, cx, cy, cr = 5) {
+      return cx >= b[0] - cr && cx <= b[2] + cr && cy >= b[1] - cr && cy <= b[3] + cr;
+    }
+
+    const placedBoxes = [];
+
+    sortedNodes.forEach(node => {
+      let bestDir = 'E';
+      let bestConfig = null;
+      let minPenalty = Infinity;
+
+      for (const dir of DIRECTIONS) {
+        const config = getDirectionBox(node, dir.name);
+        const [x1, y1, x2, y2] = config.box;
+        let penalty = dir.pref;
+
+        // 1. 画布边缘裁切保护
+        if (x1 < MARGIN.left || x2 > WIDTH - MARGIN.right || y1 < MARGIN.top || y2 > HEIGHT - MARGIN.bottom) {
+          penalty += 1000;
+        }
+
+        // 2. 邻近散点圆圈碰撞保护（防止字压点）
+        for (const other of poetNodes) {
+          if (other.poet.name === node.poet.name) continue;
+          if (isDotInBox(config.box, other.px, other.py, other.r + 3)) {
+            penalty += 500;
+          }
+        }
+
+        // 3. 已放置文字重叠保护（防止字压字）
+        for (const pbox of placedBoxes) {
+          if (isBoxOverlap(config.box, pbox)) {
+            penalty += 300;
+          }
+        }
+
+        if (penalty < minPenalty) {
+          minPenalty = penalty;
+          bestDir = dir.name;
+          bestConfig = config;
+        }
+      }
+
+      placedBoxes.push(bestConfig.box);
+      node.poet._labelLayout = {
+        dx: bestConfig.dx,
+        dy: bestConfig.dy,
+        anchor: bestConfig.anchor,
+        dir: bestDir
+      };
+    });
+  }
+
+  /**
+   * 绘制诗人散点与分级标注 (Hierarchical Nodes with Adaptive Placement)
    */
   function drawPoetNodes() {
     const poetGroups = dotsGroup.selectAll('.poet-dot-group')
@@ -302,11 +478,12 @@
       .attr('stroke-width', d => (d.is_master ? 2 : 1.2))
       .attr('opacity', 0.92);
 
-    // 2. 诗人姓名文本（分级标注，依托 CSS 纯净白描边光晕防遮挡）
+    // 2. 诗人姓名文本（八方向自适应避让 + 纯净白描边光晕防遮挡）
     poetGroups.append('text')
       .attr('class', d => `poet-dot-label ${d.is_master ? 'master' : ''}`)
-      .attr('x', 9)
-      .attr('y', 4)
+      .attr('x', d => (d._labelLayout ? d._labelLayout.dx : 9))
+      .attr('y', d => (d._labelLayout ? d._labelLayout.dy : 4))
+      .attr('text-anchor', d => (d._labelLayout ? d._labelLayout.anchor : 'start'))
       .style('opacity', d => (d.is_master ? 1 : 0)) // 宗师常驻显示，普通诗人默认隐去避让
       .text(d => d.name);
   }
