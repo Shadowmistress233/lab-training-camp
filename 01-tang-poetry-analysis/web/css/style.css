@@ -981,10 +981,27 @@ body {
   pointer-events: none;
 }
 
-/* 流派领地外挂徽标卡片 (Boundary Capsule Badge) */
-.cluster-territory-badge {
+/* 流派领地外围固定引线与锚点 (Leader Line & Anchor Dot) */
+.cluster-leader-line {
   pointer-events: none;
-  transition: transform 0.3s ease;
+  transition: stroke-opacity 0.3s ease, stroke-width 0.3s ease;
+}
+
+.cluster-anchor-dot {
+  pointer-events: none;
+  transition: r 0.3s ease, fill-opacity 0.3s ease;
+}
+
+/* 流派领地外围角标卡片 (Corner Callout Badge) */
+.cluster-territory-badge {
+  cursor: pointer;
+  pointer-events: all;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s ease;
+}
+
+.cluster-territory-badge:hover {
+  transform: scale(1.04);
+  filter: drop-shadow(0 4px 12px rgba(44, 62, 80, 0.16));
 }
 
 .cluster-badge-box {
@@ -994,7 +1011,7 @@ body {
 .cluster-badge-text {
   font-family: var(--font-serif);
   user-select: none;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85);
 }
 
 

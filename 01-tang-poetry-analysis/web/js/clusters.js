@@ -99,6 +99,30 @@
   }
 
   /**
+   * 切换/过滤特定流派
+   */
+  function toggleCluster(clusterId) {
+    if (activeClusterId === clusterId) {
+      activeClusterId = null;
+      currentClusterFilterEl.textContent = '全部流派';
+      currentClusterFilterEl.style.backgroundColor = 'rgba(178, 58, 34, 0.08)';
+      currentClusterFilterEl.style.color = '#b23a22';
+      document.querySelectorAll('.cluster-legend-card').forEach(c => c.classList.remove('active'));
+    } else {
+      activeClusterId = clusterId;
+      const cluster = dataset.clusters.find(c => c.id === clusterId);
+      currentClusterFilterEl.textContent = `筛选: ${cluster.name}`;
+      currentClusterFilterEl.style.backgroundColor = cluster.color;
+      currentClusterFilterEl.style.color = '#ffffff';
+      document.querySelectorAll('.cluster-legend-card').forEach(c => c.classList.remove('active'));
+      const activeCard = document.querySelector(`.cluster-legend-card[data-id="${clusterId}"]`);
+      if (activeCard) activeCard.classList.add('active');
+    }
+
+    updateScatterDisplay();
+  }
+
+  /**
    * 渲染左侧流派图例
    */
   function renderClusterLegend() {
@@ -123,22 +147,7 @@
       `;
 
       card.addEventListener('click', () => {
-        if (activeClusterId === cluster.id) {
-          activeClusterId = null;
-          currentClusterFilterEl.textContent = '全部流派';
-          currentClusterFilterEl.style.backgroundColor = 'rgba(178, 58, 34, 0.08)';
-          currentClusterFilterEl.style.color = '#b23a22';
-          document.querySelectorAll('.cluster-legend-card').forEach(c => c.classList.remove('active'));
-        } else {
-          activeClusterId = cluster.id;
-          currentClusterFilterEl.textContent = `筛选: ${cluster.name}`;
-          currentClusterFilterEl.style.backgroundColor = cluster.color;
-          currentClusterFilterEl.style.color = '#ffffff';
-          document.querySelectorAll('.cluster-legend-card').forEach(c => c.classList.remove('active'));
-          card.classList.add('active');
-        }
-
-        updateScatterDisplay();
+        toggleCluster(cluster.id);
       });
 
       clusterLegendListEl.appendChild(card);
@@ -265,47 +274,63 @@
         .attr('stroke-width', 1.5)
         .attr('stroke-dasharray', '4 4');
 
-      // 2. 沿凸包周长寻找离所有散点最开阔、无任何遮挡的黄金外缘标牌锚点 (Optimal Void Anchor)
-      const allPoetPoints = dataset.poets.map(p => [xScale(p.x), yScale(p.y)]);
+      // 2. 解法1：四角外围固定图签坐标与凸包最近锚点计算 (Corner Slots & Leader Line)
+      // 西北 (Cluster 0), 东北 (Cluster 2), 西南 (Cluster 1), 东南 (Cluster 3)
+      const CORNER_SLOTS = {
+        0: [135, 36],   // 宫闱乐府 (西北外围开阔区)
+        2: [725, 36],   // 山水行旅 (东北外围开阔区)
+        1: [135, 504],  // 晚唐羁旅 (西南外围开阔区)
+        3: [725, 504]   // 现实关怀 (东南外围开阔区)
+      };
+
+      const [bx, by] = CORNER_SLOTS[cluster.id] || [cx, cy];
+
+      // 在凸包边缘寻找距离四角徽标最近的锚点 (Nearest Hull Anchor)
       let bestAnchor = paddedHull[0];
-      let maxClearance = -1;
+      let minDistance = Infinity;
 
       for (let i = 0; i < paddedHull.length; i++) {
         const p1 = paddedHull[i];
         const p2 = paddedHull[(i + 1) % paddedHull.length];
-        for (let t = 0; t <= 1; t += 0.2) {
+        for (let t = 0; t <= 1; t += 0.05) {
           const sx = p1[0] * (1 - t) + p2[0] * t;
           const sy = p1[1] * (1 - t) + p2[1] * t;
-
-          // 保持在可视画布安全边界内
-          if (sx < MARGIN.left + 80 || sx > WIDTH - MARGIN.right - 80 || sy < MARGIN.top + 20 || sy > HEIGHT - MARGIN.bottom - 20) {
-            continue;
-          }
-
-          let minDist = Infinity;
-          for (let k = 0; k < allPoetPoints.length; k++) {
-            const dx = allPoetPoints[k][0] - sx;
-            const dy = allPoetPoints[k][1] - sy;
-            const d = Math.sqrt(dx * dx + dy * dy);
-            if (d < minDist) minDist = d;
-          }
-
-          if (minDist > maxClearance) {
-            maxClearance = minDist;
+          const d = Math.hypot(sx - bx, sy - by);
+          if (d < minDistance) {
+            minDistance = d;
             bestAnchor = [sx, sy];
           }
         }
       }
 
-      if (maxClearance === -1) {
-        const minY = d3.min(paddedHull, d => d[1]);
-        bestAnchor = [cx, Math.max(minY - 12, MARGIN.top + 20)];
-      }
+      // 3. 绘制优雅的虚线引线 (Leader Line from Corner Badge to Hull Anchor)
+      clusterHullG.append('line')
+        .attr('class', 'cluster-leader-line')
+        .attr('x1', bx)
+        .attr('y1', by)
+        .attr('x2', bestAnchor[0])
+        .attr('y2', bestAnchor[1])
+        .attr('stroke', cluster.color)
+        .attr('stroke-width', 1.2)
+        .attr('stroke-opacity', 0.45)
+        .attr('stroke-dasharray', '3 3');
 
-      // 3. 在外缘开阔处绘制工业级古风流派徽标卡 (Top/Edge Boundary Badge)
+      // 4. 绘制凸包边缘锚点微圆 (Anchor Dot on Hull)
+      clusterHullG.append('circle')
+        .attr('class', 'cluster-anchor-dot')
+        .attr('cx', bestAnchor[0])
+        .attr('cy', bestAnchor[1])
+        .attr('r', 2.8)
+        .attr('fill', cluster.color)
+        .attr('stroke', '#ffffff')
+        .attr('stroke-width', 1);
+
+      // 5. 绘制外围角标卡片 (Corner Callout Badge)
       const badgeG = clusterHullG.append('g')
         .attr('class', 'cluster-territory-badge')
-        .attr('transform', `translate(${bestAnchor[0]}, ${bestAnchor[1]})`);
+        .attr('transform', `translate(${bx}, ${by})`)
+        .style('cursor', 'pointer')
+        .on('click', () => toggleCluster(cluster.id));
 
       // 徽标背景卡片 (宣纸底色 + 流派主题色细线描边 + 柔和投影)
       const badgeBox = badgeG.append('rect')
@@ -314,10 +339,10 @@
         .attr('height', 28)
         .attr('rx', 14)
         .attr('fill', '#fdfaf3')
-        .attr('fill-opacity', 0.94)
+        .attr('fill-opacity', 0.95)
         .attr('stroke', cluster.color)
         .attr('stroke-width', 1.4)
-        .attr('stroke-opacity', 0.55)
+        .attr('stroke-opacity', 0.6)
         .style('filter', 'drop-shadow(0 2px 6px rgba(44, 62, 80, 0.08))');
 
       // 徽标文字: 流派名 + 核心关键词
@@ -426,7 +451,7 @@
         }
       });
 
-    // 更新领地气泡与徽标的高亮
+    // 更新领地气泡、引线与徽标的高亮
     hullGroup.selectAll('.cluster-hull-container')
       .each(function (c) {
         const isCurrent = activeClusterId === null || activeClusterId === c.id;
@@ -435,9 +460,14 @@
         container.select('.cluster-hull-path')
           .attr('fill-opacity', activeClusterId === c.id ? 0.16 : 0.08)
           .attr('stroke-width', activeClusterId === c.id ? 2.5 : 1.5);
+        container.select('.cluster-leader-line')
+          .attr('stroke-width', activeClusterId === c.id ? 1.8 : 1.2)
+          .attr('stroke-opacity', activeClusterId === c.id ? 0.8 : 0.45);
+        container.select('.cluster-anchor-dot')
+          .attr('r', activeClusterId === c.id ? 3.8 : 2.8);
         container.select('.cluster-badge-box')
           .attr('stroke-width', activeClusterId === c.id ? 2.0 : 1.4)
-          .attr('stroke-opacity', activeClusterId === c.id ? 0.9 : 0.55);
+          .attr('stroke-opacity', activeClusterId === c.id ? 0.9 : 0.6);
       });
 
   }
