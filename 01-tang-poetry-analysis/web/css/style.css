@@ -687,6 +687,16 @@ body {
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
 }
 
+.polar-bar-label {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.25s ease;
+}
+
 /* ---------------- 底部诗句赏析卡片 ---------------- */
 .poet-verse-card {
   margin-top: 16px;

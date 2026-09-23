@@ -221,6 +221,9 @@
     // 4. 扇形柱条容器
     chartG.append('g').attr('class', 'polar-bars-group');
 
+    // 5. 扇形数值标签容器（置于柱条上层）
+    chartG.append('g').attr('class', 'polar-labels-group');
+
     // 弧度生成器
     arcGenerator = d3.arc()
       .innerRadius(INNER_RADIUS)
@@ -250,6 +253,7 @@
         ...item,
         color: dimInfo.color || '#b23a22',
         description: dimInfo.description || '',
+        d3Angle: d3Angle,
         startAngle: d3Angle - BAR_WIDTH_RAD / 2,
         endAngle: d3Angle + BAR_WIDTH_RAD / 2,
         targetOuterRadius: rScale(item.score)
@@ -299,6 +303,48 @@
       });
 
     bars.exit().remove();
+
+    // 4. 更新扇形花瓣上的量化分值数字 (Data Join & Transition)
+    const labelsGroup = chartG.select('.polar-labels-group');
+    const labels = labelsGroup.selectAll('.polar-bar-label')
+      .data(barData, d => d.id);
+
+    const labelsEnter = labels.enter()
+      .append('text')
+      .attr('class', 'polar-bar-label')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '0.35em')
+      .style('pointer-events', 'none')
+      .style('user-select', 'none')
+      .style('font-family', 'var(--font-sans)')
+      .style('font-size', '11.5px')
+      .style('font-weight', '700');
+
+    labelsEnter.merge(labels)
+      .transition()
+      .duration(550)
+      .ease(d3.easeCubicInOut)
+      .attr('x', d => {
+        const isShort = (d.targetOuterRadius - INNER_RADIUS) < 24;
+        const rPos = isShort ? d.targetOuterRadius + 11 : (INNER_RADIUS + d.targetOuterRadius) / 2;
+        return Math.sin(d.d3Angle) * rPos;
+      })
+      .attr('y', d => {
+        const isShort = (d.targetOuterRadius - INNER_RADIUS) < 24;
+        const rPos = isShort ? d.targetOuterRadius + 11 : (INNER_RADIUS + d.targetOuterRadius) / 2;
+        return -Math.cos(d.d3Angle) * rPos;
+      })
+      .attr('fill', d => {
+        const isShort = (d.targetOuterRadius - INNER_RADIUS) < 24;
+        return isShort ? d.color : '#ffffff';
+      })
+      .style('text-shadow', d => {
+        const isShort = (d.targetOuterRadius - INNER_RADIUS) < 24;
+        return isShort ? '0 1px 3px rgba(255, 255, 255, 0.95)' : '0 1px 3px rgba(0, 0, 0, 0.55)';
+      })
+      .text(d => Math.round(d.score));
+
+    labels.exit().remove();
 
     // 4. 更新底部代表名句卡片
     updateVerseCard(poet);
