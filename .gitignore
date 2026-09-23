@@ -13,10 +13,13 @@ dist/
 build/
 *.egg-info/
 
-# Python cache
+# Python cache & Testing
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Logs
 *.log
@@ -25,10 +28,27 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# OS / Editor
+# Environment variables & Secrets
+.env
+.env.*
+*.env
+
+# Temporary & Backup files
+*.bak
+*~
+*.tmp
+*.temp
+*.orig
+AGENTS(bak).md
+
+# OS / Editor / Tooling metadata
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+.cursor/
+.zed/
+.history/
+.jj/
 *.swp
 *.swo

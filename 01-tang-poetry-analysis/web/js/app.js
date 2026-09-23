@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("加载意象数据契约失败:", err);
       d3.select("#chart-stage").html(
         `<div style="color: #b23a22; padding: 40px; text-align: center;">
-          <h3>⚠️ 数据契约加载失败</h3>
+          <h3>[警告] 数据契约加载失败</h3>
           <p>请确保已先运行 <code>python src/process_poems.py</code> 生成 <code>web/data/imagery_data.json</code>。</p>
         </div>`
       );

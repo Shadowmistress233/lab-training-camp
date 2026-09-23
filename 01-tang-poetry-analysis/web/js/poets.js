@@ -362,7 +362,7 @@
         ${d.top_words.map(w => `<span class="poet-badge">${w}</span>`).join('')}
       </div>
       <div style="font-size: 0.75rem; color: #95a5a6; margin-top: 4px;">
-        💡 提示：指数基于该诗人在该维度下的千行词频密度归一化计算。
+        [提示] 指数基于该诗人在该维度下的千行词频密度归一化计算。
       </div>
     `;
   }

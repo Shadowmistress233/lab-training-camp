@@ -15,14 +15,17 @@
 ```text
 lab-training-camp/
 ├── README.md                       # 合集仓库导航文档
+├── LICENSE                         # 开源许可证声明 (ISC License)
 ├── AGENTS.md                       # AI 编程助手协作规范与知识沉淀
 ├── .gitignore                      # 全局 Git 忽略规则
 │
 ├── 01-tang-poetry-analysis/        # 模块一：唐诗意象分析
 │   ├── README.md                   # 模块说明文档
+│   ├── requirements.txt            # Python 依赖清单
 │   ├── package.json                # 前端构建配置
 │   ├── vite.config.js              # Vite 配置
 │   ├── src/                        # Python 数据处理
+│   ├── tests/                      # 自动化测试套件
 │   └── web/                        # D3.js 前端页面与数据
 │
 ├── 02-time-series-analysis/        # 模块二（待展开）
@@ -33,4 +36,4 @@ lab-training-camp/
 
 - Python >= 3.10
 - Node.js >= 20.x
-- pnpm >= 9.x
+- pnpm >= 9.x (推荐 pnpm 10+)

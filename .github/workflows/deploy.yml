@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -23,6 +24,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: '01-tang-poetry-analysis/requirements.txt'
+
+      - name: Install Python dependencies & Run Tests
+        working-directory: 01-tang-poetry-analysis
+        run: |
+          pip install -r requirements.txt
+          python -m unittest discover -s tests -p "test_*.py"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4

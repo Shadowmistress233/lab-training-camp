@@ -572,7 +572,7 @@
         </div>
       </div>
       <div style="font-size: 0.75rem; color: #9c9284; margin-top: 8px;">
-        💡 空间分布: 属于【${poet.cluster_name}】核心语料群岛。
+        [分布] 属于【${poet.cluster_name}】核心语料群岛。
       </div>
     `;
   }
@@ -597,7 +597,7 @@
         ${d.top_words.map(w => `<span class="poet-badge">${w}</span>`).join('')}
       </div>
       <div style="font-size: 0.75rem; color: #95a5a6; margin-top: 4px;">
-        💡 点击可锁定该诗人；双击或滚轮可放大该区域。
+        [提示] 点击可锁定该诗人；双击或滚轮可放大该区域。
       </div>
     `;
 
