@@ -957,61 +957,14 @@ body {
   font-family: var(--font-sans);
 }
 
-/* 流派领地水彩气泡与标题 */
+/* 流派领地水彩气泡 */
 .cluster-hull-container {
   transition: opacity 0.4s ease;
   pointer-events: none;
 }
 
 .cluster-hull-path {
-  transition: fill-opacity 0.3s ease, stroke-width 0.3s ease;
-}
-
-.cluster-territory-title {
-  font-family: var(--font-serif);
-  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.95), 0 0 8px rgba(255, 255, 255, 0.95);
-  user-select: none;
-  pointer-events: none;
-}
-
-.cluster-territory-sub {
-  font-family: var(--font-sans);
-  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9), 0 0 6px rgba(255, 255, 255, 0.9);
-  user-select: none;
-  pointer-events: none;
-}
-
-/* 流派领地外围固定引线与锚点 (Leader Line & Anchor Dot) */
-.cluster-leader-line {
-  pointer-events: none;
-  transition: stroke-opacity 0.3s ease, stroke-width 0.3s ease;
-}
-
-.cluster-anchor-dot {
-  pointer-events: none;
-  transition: r 0.3s ease, fill-opacity 0.3s ease;
-}
-
-/* 流派领地外围角标卡片 (Corner Callout Badge) */
-.cluster-territory-badge {
-  cursor: pointer;
-  pointer-events: all;
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s ease;
-}
-
-.cluster-territory-badge:hover {
-  transform: scale(1.04);
-  filter: drop-shadow(0 4px 12px rgba(44, 62, 80, 0.16));
-}
-
-.cluster-badge-box {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.cluster-badge-text {
-  font-family: var(--font-serif);
-  user-select: none;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85);
+  transition: fill-opacity 0.3s ease, stroke-width 0.3s ease, stroke-opacity 0.3s ease;
 }
 
 
