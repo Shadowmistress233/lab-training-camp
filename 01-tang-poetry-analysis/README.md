@@ -38,8 +38,9 @@
     │   └── clusters.js             # Tab 3 逻辑
     └── data/
         ├── imagery_data.json       # 意象数据
-        ├── poet_sentiment_data.json# 诗人画像数据
-        └── cluster_data.json       # 聚类流形数据
+        ├── poet_sentiment.json     # 诗人画像数据
+        └── poet_clusters.json      # 聚类流形数据
+
 ```
 
 ## 快速上手

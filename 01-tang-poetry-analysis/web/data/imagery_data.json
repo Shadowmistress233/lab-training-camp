@@ -3,159 +3,815 @@
     {
       "id": "season",
       "name": "四季时令",
+      "description": "春生夏长，秋收冬藏，四时流转中的岁月感怀与生命律动",
       "total_count": 13416,
       "items": [
         {
           "name": "春",
-          "value": 6832
+          "value": 6832,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 636
+            },
+            {
+              "poet": "杜甫",
+              "count": 182
+            },
+            {
+              "poet": "元稹",
+              "count": 159
+            }
+          ],
+          "samples": [
+            {
+              "verse": "自有晚风推楚浪，不劳春色染湘烟。（《次洞庭南》）",
+              "author": "温庭筠",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "秋",
-          "value": 5339
+          "value": 5339,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 361
+            },
+            {
+              "poet": "杜甫",
+              "count": 166
+            },
+            {
+              "poet": "李白",
+              "count": 158
+            }
+          ],
+          "samples": [
+            {
+              "verse": "玉炉香，红蜡泪，偏照画堂秋思。眉翠薄，鬓云残，",
+              "author": "温庭筠",
+              "title": "更漏子"
+            }
+          ]
         },
         {
           "name": "夏",
-          "value": 850
+          "value": 850,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 71
+            },
+            {
+              "poet": "韦应物",
+              "count": 38
+            },
+            {
+              "poet": "皮日休",
+              "count": 32
+            }
+          ],
+          "samples": [
+            {
+              "verse": "势欲凌云威触天，权倾诸夏力排山。三年骥尾有人附，",
+              "author": "温庭筠",
+              "title": "题李卫公诗二首"
+            }
+          ]
         },
         {
           "name": "冬",
-          "value": 395
+          "value": 395,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 41
+            },
+            {
+              "poet": "杜甫",
+              "count": 34
+            },
+            {
+              "poet": "赵冬曦",
+              "count": 17
+            }
+          ],
+          "samples": [
+            {
+              "verse": "烟波半落新沙地，鸟雀群飞欲雪天。（《初冬》）",
+              "author": "刘禹锡",
+              "title": "句"
+            }
+          ]
         }
       ]
     },
     {
       "id": "flora",
       "name": "植物花卉",
+      "description": "松竹傲骨，草木寄兴，藉自然芳菲抒发人格气节与幽居情致",
       "total_count": 14353,
       "items": [
         {
           "name": "花",
-          "value": 5521
+          "value": 5521,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 417
+            },
+            {
+              "poet": "杜甫",
+              "count": 144
+            },
+            {
+              "poet": "李白",
+              "count": 135
+            }
+          ],
+          "samples": [
+            {
+              "verse": "玉阶一夜留明月，金殿三春满落花。（《瑞雪》）",
+              "author": "李白",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "松",
-          "value": 2512
+          "value": 2512,
+          "top_poets": [
+            {
+              "poet": "曹松",
+              "count": 155
+            },
+            {
+              "poet": "白居易",
+              "count": 151
+            },
+            {
+              "poet": "李白",
+              "count": 83
+            }
+          ],
+          "samples": [
+            {
+              "verse": "落月西窗惊起，好个匆匆些子。鬒鬓亸轻松，",
+              "author": "白居易",
+              "title": "如梦令"
+            }
+          ]
         },
         {
           "name": "竹",
-          "value": 2444
+          "value": 2444,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 200
+            },
+            {
+              "poet": "杜甫",
+              "count": 95
+            },
+            {
+              "poet": "元稹",
+              "count": 62
+            }
+          ],
+          "samples": [
+            {
+              "verse": "竹风轻动庭除冷，珠帘月上玲珑影。山枕隐浓妆，",
+              "author": "温庭筠",
+              "title": "菩萨蛮"
+            }
+          ]
         },
         {
           "name": "柳",
-          "value": 1914
+          "value": 1914,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 116
+            },
+            {
+              "poet": "温庭筠",
+              "count": 66
+            },
+            {
+              "poet": "杜甫",
+              "count": 44
+            }
+          ],
+          "samples": [
+            {
+              "verse": "卓氏垆前金线柳，隋家堤畔锦帆风。（《题池亭》）",
+              "author": "温庭筠",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "梅",
-          "value": 744
+          "value": 744,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 29
+            },
+            {
+              "poet": "元稹",
+              "count": 29
+            },
+            {
+              "poet": "杜甫",
+              "count": 24
+            }
+          ],
+          "samples": [
+            {
+              "verse": "天际云鸟引情远，春已晚。烟霭渡南苑。雪梅香，",
+              "author": "温庭筠",
+              "title": "河传"
+            }
+          ]
         },
         {
           "name": "莲",
-          "value": 697
+          "value": 697,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 39
+            },
+            {
+              "poet": "温庭筠",
+              "count": 31
+            },
+            {
+              "poet": "齐己",
+              "count": 21
+            }
+          ],
+          "samples": [
+            {
+              "verse": "江畔，相唤。晓妆鲜，仙景个女采莲。请君莫向那岸边。",
+              "author": "温庭筠",
+              "title": "河传"
+            }
+          ]
         },
         {
           "name": "菊",
-          "value": 521
+          "value": 521,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 35
+            },
+            {
+              "poet": "杜甫",
+              "count": 21
+            },
+            {
+              "poet": "司空图",
+              "count": 15
+            }
+          ],
+          "samples": [
+            {
+              "verse": "别后东篱数枝菊，不知闲醉与谁同。 --赵嘏",
+              "author": "杜牧",
+              "title": "同赵二十二访张明府郊居联句"
+            }
+          ]
         }
       ]
     },
     {
       "id": "nature",
       "name": "天象地理",
+      "description": "天象浩荡，山河辽阔，以天地万象构建博大开阔的诗性空间",
       "total_count": 34412,
       "items": [
         {
           "name": "云",
-          "value": 7661
+          "value": 7661,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 308
+            },
+            {
+              "poet": "李白",
+              "count": 280
+            },
+            {
+              "poet": "杜甫",
+              "count": 273
+            }
+          ],
+          "samples": [
+            {
+              "verse": "门外白云何处雨，一条清涧绕溪流。（失题）",
+              "author": "温庭筠",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "月",
-          "value": 6261
+          "value": 6261,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 337
+            },
+            {
+              "poet": "李白",
+              "count": 259
+            },
+            {
+              "poet": "许浑",
+              "count": 134
+            }
+          ],
+          "samples": [
+            {
+              "verse": "山似屏风江似簟，叩舷来往月明中。（《泛舟》）",
+              "author": "刘禹锡",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "山",
-          "value": 5999
+          "value": 5999,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 227
+            },
+            {
+              "poet": "李白",
+              "count": 181
+            },
+            {
+              "poet": "皎然",
+              "count": 178
+            }
+          ],
+          "samples": [
+            {
+              "verse": "沿涧水声喧户外，卷帘山色入窗来。（《山居》）",
+              "author": "温庭筠",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "风",
-          "value": 5473
+          "value": 5473,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 340
+            },
+            {
+              "poet": "杜甫",
+              "count": 189
+            },
+            {
+              "poet": "李白",
+              "count": 141
+            }
+          ],
+          "samples": [
+            {
+              "verse": "卓氏垆前金线柳，隋家堤畔锦帆风。（《题池亭》）",
+              "author": "温庭筠",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "雨",
-          "value": 3265
+          "value": 3265,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 146
+            },
+            {
+              "poet": "杜甫",
+              "count": 131
+            },
+            {
+              "poet": "韦应物",
+              "count": 64
+            }
+          ],
+          "samples": [
+            {
+              "verse": "门外白云何处雨，一条清涧绕溪流。（失题）",
+              "author": "温庭筠",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "雪",
-          "value": 3225
+          "value": 3225,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 245
+            },
+            {
+              "poet": "贯休",
+              "count": 107
+            },
+            {
+              "poet": "李白",
+              "count": 104
+            }
+          ],
+          "samples": [
+            {
+              "verse": "莫是上天宫里唱，歌声飘下玉梁尘。（《惊雪》）",
+              "author": "贾岛",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "江",
-          "value": 2528
+          "value": 2528,
+          "top_poets": [
+            {
+              "poet": "杜甫",
+              "count": 203
+            },
+            {
+              "poet": "白居易",
+              "count": 85
+            },
+            {
+              "poet": "刘长卿",
+              "count": 78
+            }
+          ],
+          "samples": [
+            {
+              "verse": "山似屏风江似簟，叩舷来往月明中。（《泛舟》）",
+              "author": "刘禹锡",
+              "title": "句"
+            }
+          ]
         }
       ]
     },
     {
       "id": "color",
       "name": "传统色彩",
+      "description": "丹青交织，白山青水，藉斑斓物象寄托主观色彩与审美意趣",
       "total_count": 16287,
       "items": [
         {
           "name": "金",
-          "value": 3278
+          "value": 3278,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 159
+            },
+            {
+              "poet": "李白",
+              "count": 146
+            },
+            {
+              "poet": "温庭筠",
+              "count": 104
+            }
+          ],
+          "samples": [
+            {
+              "verse": "卓氏垆前金线柳，隋家堤畔锦帆风。（《题池亭》）",
+              "author": "温庭筠",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "白",
-          "value": 3034
+          "value": 3034,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 281
+            },
+            {
+              "poet": "李白",
+              "count": 193
+            },
+            {
+              "poet": "杜甫",
+              "count": 188
+            }
+          ],
+          "samples": [
+            {
+              "verse": "门外白云何处雨，一条清涧绕溪流。（失题）",
+              "author": "温庭筠",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "青",
-          "value": 2460
+          "value": 2460,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 160
+            },
+            {
+              "poet": "杜甫",
+              "count": 146
+            },
+            {
+              "poet": "李白",
+              "count": 83
+            }
+          ],
+          "samples": [
+            {
+              "verse": "离别橹声空萧索，玉容惆怅妆薄。青麦燕飞落落，",
+              "author": "温庭筠",
+              "title": "河渎神"
+            }
+          ]
         },
         {
           "name": "红",
-          "value": 2248
+          "value": 2248,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 235
+            },
+            {
+              "poet": "罗虬",
+              "count": 74
+            },
+            {
+              "poet": "温庭筠",
+              "count": 68
+            }
+          ],
+          "samples": [
+            {
+              "verse": "红袖摇曳逐风软，垂玉腕。肠向柳丝断。浦南归，",
+              "author": "温庭筠",
+              "title": "河传"
+            }
+          ]
         },
         {
           "name": "翠",
-          "value": 1867
+          "value": 1867,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 72
+            },
+            {
+              "poet": "杜甫",
+              "count": 69
+            },
+            {
+              "poet": "齐己",
+              "count": 51
+            }
+          ],
+          "samples": [
+            {
+              "verse": "湖上，闲望。雨萧萧，烟浦花桥路遥。谢娘翠蛾愁不销。",
+              "author": "温庭筠",
+              "title": "河传"
+            }
+          ]
         },
         {
           "name": "绿",
-          "value": 1790
+          "value": 1790,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 145
+            },
+            {
+              "poet": "李白",
+              "count": 99
+            },
+            {
+              "poet": "温庭筠",
+              "count": 53
+            }
+          ],
+          "samples": [
+            {
+              "verse": "樱桃带雨胭脂湿，杨柳当风绿线低。（《题裴令公亭》）",
+              "author": "刘禹锡",
+              "title": "句"
+            }
+          ]
         },
         {
           "name": "黄",
-          "value": 1610
+          "value": 1610,
+          "top_poets": [
+            {
+              "poet": "黄滔",
+              "count": 203
+            },
+            {
+              "poet": "白居易",
+              "count": 105
+            },
+            {
+              "poet": "杜甫",
+              "count": 79
+            }
+          ],
+          "samples": [
+            {
+              "verse": "凤帐鸳被徒熏，寂寞花锁千门。竞把黄金买赋，",
+              "author": "温庭筠",
+              "title": "清平乐"
+            }
+          ]
         }
       ]
     },
     {
       "id": "emotion",
       "name": "人生意绪",
+      "description": "悲欢离合，羁旅乡思，唐人深情凝注的人生寄托与心灵图景",
       "total_count": 20307,
       "items": [
         {
           "name": "归",
-          "value": 7273
+          "value": 7273,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 325
+            },
+            {
+              "poet": "杜甫",
+              "count": 257
+            },
+            {
+              "poet": "李白",
+              "count": 198
+            }
+          ],
+          "samples": [
+            {
+              "verse": "荡子天涯归棹远，春已晚。莺语空肠断。若耶溪，",
+              "author": "温庭筠",
+              "title": "河传"
+            }
+          ]
         },
         {
           "name": "愁",
-          "value": 3711
+          "value": 3711,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 246
+            },
+            {
+              "poet": "杜甫",
+              "count": 141
+            },
+            {
+              "poet": "李白",
+              "count": 128
+            }
+          ],
+          "samples": [
+            {
+              "verse": "同伴，相唤。杏花稀，梦里每愁依违。仙客一去燕已飞。",
+              "author": "温庭筠",
+              "title": "河传"
+            }
+          ]
         },
         {
           "name": "醉",
-          "value": 2787
+          "value": 2787,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 369
+            },
+            {
+              "poet": "李白",
+              "count": 130
+            },
+            {
+              "poet": "元稹",
+              "count": 76
+            }
+          ],
+          "samples": [
+            {
+              "verse": "吴娃双舞醉芙蓉。早晚得相逢。",
+              "author": "白居易",
+              "title": "忆江南"
+            }
+          ]
         },
         {
           "name": "忆",
-          "value": 2553
+          "value": 2553,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 236
+            },
+            {
+              "poet": "杜甫",
+              "count": 121
+            },
+            {
+              "poet": "李白",
+              "count": 83
+            }
+          ],
+          "samples": [
+            {
+              "verse": "相见稀，相忆久，眉浅淡烟如柳。垂翠幕，结同心，",
+              "author": "温庭筠",
+              "title": "更漏子"
+            }
+          ]
         },
         {
           "name": "梦",
-          "value": 2514
+          "value": 2514,
+          "top_poets": [
+            {
+              "poet": "白居易",
+              "count": 120
+            },
+            {
+              "poet": "元稹",
+              "count": 93
+            },
+            {
+              "poet": "李白",
+              "count": 68
+            }
+          ],
+          "samples": [
+            {
+              "verse": "同伴，相唤。杏花稀，梦里每愁依违。仙客一去燕已飞。",
+              "author": "温庭筠",
+              "title": "河传"
+            }
+          ]
         },
         {
           "name": "泪",
-          "value": 1469
+          "value": 1469,
+          "top_poets": [
+            {
+              "poet": "李白",
+              "count": 76
+            },
+            {
+              "poet": "杜甫",
+              "count": 67
+            },
+            {
+              "poet": "白居易",
+              "count": 58
+            }
+          ],
+          "samples": [
+            {
+              "verse": "玉炉香，红蜡泪，偏照画堂秋思。眉翠薄，鬓云残，",
+              "author": "温庭筠",
+              "title": "更漏子"
+            }
+          ]
         }
       ]
     }

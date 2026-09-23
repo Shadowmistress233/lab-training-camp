@@ -64,6 +64,11 @@ EMOTION_TAXONOMY = [
 ]
 
 
+VOLUME_DIVIDER_PATTERN = re.compile(
+    r'^(?:钱建文制作|全唐诗|卷[一二三四五六七八九十百千万\d]+|[-=_\s]{4,})$'
+)
+
+
 def parse_poets_and_sentiments(corpus_path: str, min_poems: int = 200):
     print(f"[*] 1. 开始解析全唐诗文本: {corpus_path}")
     
@@ -86,7 +91,13 @@ def parse_poets_and_sentiments(corpus_path: str, min_poems: int = 200):
             if not line_s:
                 continue
 
-            # 匹配诗题与诗人: 卷1_1 【帝京篇十首】李世民
+            # 1. 遇到分卷标记或系统版权线，强制重置当前诗人与诗题状态
+            if VOLUME_DIVIDER_PATTERN.match(line_s):
+                current_poet = None
+                current_title = None
+                continue
+
+            # 2. 匹配诗题与诗人: 卷1_1 【帝京篇十首】李世民
             m = re.match(r'^卷\d+_\d+\s+【(.*?)】(.*)$', line_s)
             if m:
                 title = m.group(1).strip()
@@ -99,9 +110,12 @@ def parse_poets_and_sentiments(corpus_path: str, min_poems: int = 200):
                     poet_data[poet]["poem_count"] += 1
                 else:
                     current_poet = None
+                    current_title = None
             elif current_poet:
-                # 诗句行
-                poet_data[current_poet]["lines"].append((current_title, line_s))
+                # 3. 诗句行（确保过滤残留的分卷与脏元数据）
+                if not (line_s.startswith(('---', '===', '卷')) or VOLUME_DIVIDER_PATTERN.match(line_s)):
+                    poet_data[current_poet]["lines"].append((current_title, line_s))
+
 
     print(f"[*] 解析完毕，全书检测到诗人 {len(poet_data)} 位。")
 
