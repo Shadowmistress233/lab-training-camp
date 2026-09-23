@@ -6,7 +6,7 @@
 
 | 模块目录 | 内容简介 | 技术栈 | 状态 |
 | :--- | :--- | :--- | :--- |
-| `01-tang-poetry-analysis` | 全唐诗意象用词分析与交互可视化 | Python (Jieba), D3.js v5, Vite | 已完成 (v0.1.0-demo) |
+| `01-tang-poetry-analysis` | 全唐诗意象用词分析与交互可视化 | Python (Jieba, Sklearn), D3.js v5, Vite | 已结项 (v1.0.0) |
 | `02-time-series-analysis` | 多维时间序列数据分析与可视化 | Python, D3.js | 待展开 |
 | `03-graph-network-analysis` | 复杂网络与图结构分析 | Python (NetworkX), D3-force | 待展开 |
 
