@@ -251,6 +251,7 @@
         .y(d => d[1]);
 
       const clusterHullG = hullGroup.append('g')
+        .datum(cluster)
         .attr('class', `cluster-hull-container cluster-hull-${cluster.id}`);
 
       // 1. 水彩半透明领地底色
@@ -264,30 +265,88 @@
         .attr('stroke-width', 1.5)
         .attr('stroke-dasharray', '4 4');
 
-      // 2. 领地中央古典大标题 (Territory Banner)
-      clusterHullG.append('text')
-        .attr('class', 'cluster-territory-title')
-        .attr('x', cx)
-        .attr('y', cy - 10)
-        .attr('text-anchor', 'middle')
-        .attr('fill', cluster.color)
-        .attr('font-size', '13px')
-        .attr('font-weight', 'bold')
-        .attr('letter-spacing', '1.5px')
-        .text(`【${cluster.name}】`);
+      // 2. 沿凸包周长寻找离所有散点最开阔、无任何遮挡的黄金外缘标牌锚点 (Optimal Void Anchor)
+      const allPoetPoints = dataset.poets.map(p => [xScale(p.x), yScale(p.y)]);
+      let bestAnchor = paddedHull[0];
+      let maxClearance = -1;
 
-      clusterHullG.append('text')
-        .attr('class', 'cluster-territory-sub')
-        .attr('x', cx)
-        .attr('y', cy + 10)
+      for (let i = 0; i < paddedHull.length; i++) {
+        const p1 = paddedHull[i];
+        const p2 = paddedHull[(i + 1) % paddedHull.length];
+        for (let t = 0; t <= 1; t += 0.2) {
+          const sx = p1[0] * (1 - t) + p2[0] * t;
+          const sy = p1[1] * (1 - t) + p2[1] * t;
+
+          // 保持在可视画布安全边界内
+          if (sx < MARGIN.left + 80 || sx > WIDTH - MARGIN.right - 80 || sy < MARGIN.top + 20 || sy > HEIGHT - MARGIN.bottom - 20) {
+            continue;
+          }
+
+          let minDist = Infinity;
+          for (let k = 0; k < allPoetPoints.length; k++) {
+            const dx = allPoetPoints[k][0] - sx;
+            const dy = allPoetPoints[k][1] - sy;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d < minDist) minDist = d;
+          }
+
+          if (minDist > maxClearance) {
+            maxClearance = minDist;
+            bestAnchor = [sx, sy];
+          }
+        }
+      }
+
+      if (maxClearance === -1) {
+        const minY = d3.min(paddedHull, d => d[1]);
+        bestAnchor = [cx, Math.max(minY - 12, MARGIN.top + 20)];
+      }
+
+      // 3. 在外缘开阔处绘制工业级古风流派徽标卡 (Top/Edge Boundary Badge)
+      const badgeG = clusterHullG.append('g')
+        .attr('class', 'cluster-territory-badge')
+        .attr('transform', `translate(${bestAnchor[0]}, ${bestAnchor[1]})`);
+
+      // 徽标背景卡片 (宣纸底色 + 流派主题色细线描边 + 柔和投影)
+      const badgeBox = badgeG.append('rect')
+        .attr('class', 'cluster-badge-box')
+        .attr('y', -14)
+        .attr('height', 28)
+        .attr('rx', 14)
+        .attr('fill', '#fdfaf3')
+        .attr('fill-opacity', 0.94)
+        .attr('stroke', cluster.color)
+        .attr('stroke-width', 1.4)
+        .attr('stroke-opacity', 0.55)
+        .style('filter', 'drop-shadow(0 2px 6px rgba(44, 62, 80, 0.08))');
+
+      // 徽标文字: 流派名 + 核心关键词
+      const badgeText = badgeG.append('text')
+        .attr('class', 'cluster-badge-text')
+        .attr('y', 4)
         .attr('text-anchor', 'middle')
         .attr('fill', cluster.color)
-        .attr('font-size', '10px')
-        .attr('opacity', 0.75)
-        .attr('letter-spacing', '1px')
-        .text(cluster.keywords.slice(0, 4).join(' · '));
+        .attr('font-size', '11px')
+        .attr('letter-spacing', '0.8px');
+
+      badgeText.append('tspan')
+        .attr('font-weight', 'bold')
+        .text(`【${cluster.name}】 `);
+
+      badgeText.append('tspan')
+        .attr('font-size', '9.5px')
+        .attr('opacity', 0.8)
+        .text(cluster.keywords.slice(0, 3).join(' · '));
+
+      // 自适应外框宽度
+      const bbox = badgeText.node().getBBox();
+      const padW = 18;
+      badgeBox
+        .attr('x', -(bbox.width + padW) / 2)
+        .attr('width', bbox.width + padW);
     });
   }
+
 
   /**
    * 绘制诗人散点与分级标注 (Hierarchical Nodes)
@@ -367,15 +426,20 @@
         }
       });
 
-    // 更新领地气泡的高亮
+    // 更新领地气泡与徽标的高亮
     hullGroup.selectAll('.cluster-hull-container')
-      .each(function (d, i) {
-        const isCurrent = activeClusterId === null || activeClusterId === i;
-        d3.select(this).style('opacity', isCurrent ? 1 : 0.15);
-        d3.select(this).select('.cluster-hull-path')
-          .attr('fill-opacity', activeClusterId === i ? 0.16 : 0.08)
-          .attr('stroke-width', activeClusterId === i ? 2.5 : 1.5);
+      .each(function (c) {
+        const isCurrent = activeClusterId === null || activeClusterId === c.id;
+        const container = d3.select(this);
+        container.style('opacity', isCurrent ? 1 : 0.15);
+        container.select('.cluster-hull-path')
+          .attr('fill-opacity', activeClusterId === c.id ? 0.16 : 0.08)
+          .attr('stroke-width', activeClusterId === c.id ? 2.5 : 1.5);
+        container.select('.cluster-badge-box')
+          .attr('stroke-width', activeClusterId === c.id ? 2.0 : 1.4)
+          .attr('stroke-opacity', activeClusterId === c.id ? 0.9 : 0.55);
       });
+
   }
 
   /**
